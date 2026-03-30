@@ -1,0 +1,813 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Lela</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'blog/css/dashboard.css' %}" />
+  </head>
+  <body>
+    <!-- ── TOAST ── -->
+    <div id="toast"></div>
+
+    <!-- ── NAVBAR ── -->
+    <nav>
+      <div class="nav-inner">
+        <a class="nav-logo" href="home.html">Lela</a>
+        <div class="nav-links">
+          <a href="#">Explore</a>
+          <a href="#">Tags</a>
+        </div>
+        <div class="nav-search">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+            />
+          </svg>
+          <input type="text" placeholder="Search..." />
+        </div>
+        <div class="nav-right">
+          <a class="btn-signin" href="#">Sign In</a>
+          <button class="btn-write">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Write
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── PAGE ── -->
+    <div class="page">
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="profile-block">
+          <div class="avatar-wrap">🧑‍💻</div>
+          <div class="profile-name">Sarah Chen</div>
+          <div class="profile-handle">@sarahchen</div>
+          <div class="stats-row">
+            <div class="stat">
+              <span class="stat-num">1</span
+              ><span class="stat-label">Posts</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">1,245</span
+              ><span class="stat-label">Followers</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">342</span
+              ><span class="stat-label">Following</span>
+            </div>
+          </div>
+        </div>
+
+        <nav class="nav-menu">
+          <button class="nav-item active" onclick="switchTab('my-posts', this)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            My Posts
+          </button>
+          <button class="nav-item" onclick="switchTab('drafts', this)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+              />
+            </svg>
+            Drafts
+            <span class="badge">1</span>
+          </button>
+          <button class="nav-item" onclick="switchTab('bookmarks', this)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+              />
+            </svg>
+            Bookmarks
+          </button>
+          <button class="nav-item" onclick="switchTab('settings', this)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            Settings
+          </button>
+        </nav>
+      </aside>
+
+      <!-- ── MAIN PANEL ── -->
+      <main class="main-panel">
+        <!-- ══ TAB: MY POSTS ══ -->
+        <div class="tab-panel active" id="tab-my-posts">
+          <div class="panel-header">
+            <h1 class="panel-title">My Posts</h1>
+            <button
+              class="btn-new-post"
+              onclick="showToast('Opening editor...')"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              New Post
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-head posts-cols">
+              <span>Post</span>
+              <span>Status</span>
+              <span class="col-views">Views</span>
+              <span>Actions</span>
+            </div>
+
+            <!-- Row 1 -->
+            <div class="table-row posts-cols">
+              <div class="post-cell">
+                <div class="post-thumb">
+                  <img
+                    src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&q=80"
+                    alt=""
+                  />
+                </div>
+                <div>
+                  <div class="post-cell-title">
+                    The Joy of Slow Reading in a Fast-Paced World
+                  </div>
+                  <div class="post-cell-date">Mar 24, 2026</div>
+                </div>
+              </div>
+              <div>
+                <span class="status-badge status-published">Published</span>
+              </div>
+              <div class="views-cell col-views">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                3,421
+              </div>
+              <div class="actions-cell">
+                <button
+                  class="action-icon"
+                  title="Edit"
+                  onclick="showToast('Opening editor...')"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  class="action-icon del"
+                  title="Delete"
+                  onclick="confirmDelete(this)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Row 2 — bonus row -->
+            <div class="table-row posts-cols">
+              <div class="post-cell">
+                <div class="post-thumb">
+                  <img
+                    src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=200&q=80"
+                    alt=""
+                  />
+                </div>
+                <div>
+                  <div class="post-cell-title">
+                    Morning Rituals That Actually Work
+                  </div>
+                  <div class="post-cell-date">Mar 18, 2026</div>
+                </div>
+              </div>
+              <div>
+                <span class="status-badge status-published">Published</span>
+              </div>
+              <div class="views-cell col-views">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                1,892
+              </div>
+              <div class="actions-cell">
+                <button
+                  class="action-icon"
+                  title="Edit"
+                  onclick="showToast('Opening editor...')"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  class="action-icon del"
+                  title="Delete"
+                  onclick="confirmDelete(this)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: DRAFTS ══ -->
+        <div class="tab-panel" id="tab-drafts">
+          <div class="panel-header">
+            <h1 class="panel-title">Drafts</h1>
+            <button
+              class="btn-new-post"
+              onclick="showToast('Opening editor...')"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              New Post
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-head drafts-cols">
+              <span>Post</span>
+              <span>Status</span>
+              <span>Last Edited</span>
+              <span>Actions</span>
+            </div>
+
+            <div class="table-row drafts-cols">
+              <div class="draft-cell">
+                <div class="draft-title">The Future of Remote Work</div>
+                <div class="draft-excerpt">
+                  Draft post exploring the evolution of remote work culture...
+                </div>
+              </div>
+              <div><span class="status-badge status-draft">Draft</span></div>
+              <div style="font-size: 14px; color: var(--text-2)">
+                Mar 29, 2026
+              </div>
+              <div class="actions-cell">
+                <button
+                  class="action-icon"
+                  title="Edit"
+                  onclick="showToast('Opening editor...')"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  class="action-icon del"
+                  title="Delete"
+                  onclick="confirmDelete(this)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: BOOKMARKS ══ -->
+        <div class="tab-panel" id="tab-bookmarks">
+          <div class="panel-header">
+            <h1 class="panel-title">Bookmarks</h1>
+          </div>
+
+          <!-- Empty state shown by default; swap with bookmarks-grid when user has bookmarks -->
+          <div class="empty-state" id="bookmarks-empty">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+              />
+            </svg>
+            <p>No bookmarks yet</p>
+            <a href="home.html">Explore stories to bookmark →</a>
+          </div>
+
+          <!-- Example bookmarks (hidden, shown when bookmarks exist) -->
+          <div class="bookmarks-grid" id="bookmarks-list" style="display: none">
+            <div class="bookmark-card">
+              <div class="bookmark-thumb">
+                <img
+                  src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=200&q=80"
+                  alt=""
+                />
+              </div>
+              <div class="bookmark-info">
+                <div class="bookmark-title">
+                  The Art of Productive Workspaces
+                </div>
+                <div class="bookmark-meta">
+                  Marcus Whitfield · Mar 28 · 8 min read
+                </div>
+              </div>
+              <button
+                class="bookmark-rm"
+                title="Remove bookmark"
+                onclick="removeBookmark(this)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div class="bookmark-card">
+              <div class="bookmark-thumb">
+                <img
+                  src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=200&q=80"
+                  alt=""
+                />
+              </div>
+              <div class="bookmark-info">
+                <div class="bookmark-title">
+                  Building Better Software: Lessons from a Decade of Coding
+                </div>
+                <div class="bookmark-meta">
+                  Marcus Whitfield · Mar 25 · 12 min read
+                </div>
+              </div>
+              <button
+                class="bookmark-rm"
+                title="Remove bookmark"
+                onclick="removeBookmark(this)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: SETTINGS ══ -->
+        <div class="tab-panel" id="tab-settings">
+          <div class="panel-header">
+            <h1 class="panel-title">Settings</h1>
+          </div>
+
+          <!-- Profile Information -->
+          <div class="settings-card">
+            <h2 class="settings-section-title">Profile Information</h2>
+
+            <div class="avatar-upload">
+              <div class="avatar-wrap">🧑‍💻</div>
+              <div>
+                <button class="upload-btn">Change photo</button>
+                <p
+                  style="font-size: 12px; color: var(--text-3); margin-top: 6px"
+                >
+                  JPG or PNG, max 2MB
+                </p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Name</label>
+              <input class="form-input" type="text" value="Sarah Chen" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input class="form-input" type="text" value="sarahchen" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bio</label>
+              <textarea class="form-input">
+Writer, designer, and storyteller. I write about technology, creativity, and the spaces in between.</textarea
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Website</label>
+              <input
+                class="form-input"
+                type="url"
+                placeholder="https://yoursite.com"
+              />
+            </div>
+            <div class="form-footer">
+              <button class="btn-save" onclick="showToast('Profile saved ✓')">
+                Save Changes
+              </button>
+            </div>
+          </div>
+
+          <!-- Change Password -->
+          <div class="settings-card">
+            <h2 class="settings-section-title">Change Password</h2>
+
+            <div class="form-group">
+              <label class="form-label">Current password</label>
+              <input
+                class="form-input"
+                type="password"
+                placeholder="Enter current password"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">New password</label>
+              <input
+                class="form-input"
+                type="password"
+                id="new-pass"
+                placeholder="At least 8 characters"
+                oninput="checkStrength(this.value)"
+              />
+              <div class="strength-bar">
+                <div class="strength-fill" id="strength-fill"></div>
+              </div>
+              <p class="password-hint" id="strength-label">
+                Enter a new password
+              </p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm new password</label>
+              <input
+                class="form-input"
+                type="password"
+                placeholder="Re-enter new password"
+              />
+            </div>
+            <div class="form-footer">
+              <button
+                class="btn-save"
+                onclick="showToast('Password updated ✓')"
+              >
+                Update Password
+              </button>
+            </div>
+          </div>
+
+          <!-- Email Preferences -->
+          <div class="settings-card">
+            <h2 class="settings-section-title">Email Preferences</h2>
+            <div style="display: flex; flex-direction: column; gap: 16px">
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  cursor: pointer;
+                  font-size: 14px;
+                  color: var(--text-2);
+                "
+              >
+                <input
+                  type="checkbox"
+                  checked
+                  style="width: 16px; height: 16px; accent-color: var(--teal)"
+                />
+                Notify me when someone comments on my post
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  cursor: pointer;
+                  font-size: 14px;
+                  color: var(--text-2);
+                "
+              >
+                <input
+                  type="checkbox"
+                  checked
+                  style="width: 16px; height: 16px; accent-color: var(--teal)"
+                />
+                Notify me when someone follows me
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  cursor: pointer;
+                  font-size: 14px;
+                  color: var(--text-2);
+                "
+              >
+                <input
+                  type="checkbox"
+                  style="width: 16px; height: 16px; accent-color: var(--teal)"
+                />
+                Weekly digest of trending posts
+              </label>
+            </div>
+            <div class="form-footer" style="margin-top: 20px">
+              <button
+                class="btn-save"
+                onclick="showToast('Preferences saved ✓')"
+              >
+                Save Preferences
+              </button>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="settings-card danger-zone">
+            <h2 class="settings-section-title">Danger Zone</h2>
+            <p
+              style="font-size: 14px; color: var(--text-2); margin-bottom: 16px"
+            >
+              Once you delete your account, all your posts and data will be
+              permanently removed. This cannot be undone.
+            </p>
+            <button
+              class="btn-danger"
+              onclick="
+                showToast('Please contact support to delete your account.')
+              "
+            >
+              Delete Account
+            </button>
+          </div>
+        </div>
+        <!-- end settings -->
+      </main>
+    </div>
+
+    <script>
+      // ── Tab switching
+      function switchTab(tab, btn) {
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("tab-" + tab).classList.add("active");
+        btn.classList.add("active");
+      }
+
+      // ── Toast notification
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2800);
+      }
+
+      // ── Delete confirmation
+      function confirmDelete(btn) {
+        if (confirm("Delete this post? This cannot be undone.")) {
+          const row = btn.closest(".table-row");
+          row.style.opacity = "0";
+          row.style.transition = "opacity .3s";
+          setTimeout(() => row.remove(), 300);
+          showToast("Post deleted");
+        }
+      }
+
+      // ── Remove bookmark
+      function removeBookmark(btn) {
+        const card = btn.closest(".bookmark-card");
+        card.style.opacity = "0";
+        card.style.transition = "opacity .3s";
+        setTimeout(() => {
+          card.remove();
+          const list = document.getElementById("bookmarks-list");
+          if (!list.children.length) {
+            list.style.display = "none";
+            document.getElementById("bookmarks-empty").style.display = "flex";
+          }
+        }, 300);
+        showToast("Bookmark removed");
+      }
+
+      // ── Password strength meter
+      function checkStrength(val) {
+        const fill = document.getElementById("strength-fill");
+        const label = document.getElementById("strength-label");
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const colors = ["", "#e74c3c", "#e67e22", "#f1c40f", "#27ae60"];
+        const labels = ["", "Weak", "Fair", "Good", "Strong"];
+        fill.style.width = score * 25 + "%";
+        fill.style.background = colors[score] || "#ddd";
+        label.textContent = val.length ? labels[score] : "Enter a new password";
+        label.style.color = colors[score] || "var(--text-3)";
+      }
+
+      // ── Demo: toggle bookmark view (remove this in Django — server will decide)
+      // Uncomment to see the bookmark cards:
+      // document.getElementById('bookmarks-empty').style.display = 'none';
+      // document.getElementById('bookmarks-list').style.display = 'flex';
+    </script>
+  </body>
+</html>

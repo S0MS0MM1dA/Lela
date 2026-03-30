@@ -1,0 +1,590 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Embracing Minimalism in the Digital Age — Lela</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'blog/css/post_detail.css' %}" />
+  </head>
+  <body>
+    <!-- ── READING PROGRESS ── -->
+    <div id="progress-bar"></div>
+
+    <!-- ── NAVBAR ── -->
+    <nav>
+      <div class="nav-inner">
+        <a class="nav-logo" href="home.html">Lela</a>
+        <div class="nav-links">
+          <a href="#">Explore</a>
+          <a href="#">Tags</a>
+        </div>
+        <div class="nav-search">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+            />
+          </svg>
+          <input type="text" placeholder="Search..." />
+        </div>
+        <div class="nav-right">
+          <a class="btn-signin" href="#">Sign In</a>
+          <a class="btn-write" href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Write
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── FLOATING SIDEBAR ACTIONS ── -->
+    <div id="float-like">
+      <button
+        class="float-btn"
+        id="float-like-btn"
+        onclick="toggleLike()"
+        title="Like"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+      </button>
+      <span class="float-count" id="float-count">567</span>
+      <button
+        class="float-btn"
+        title="Comment"
+        onclick="document.querySelector('.comment-form textarea').focus()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          />
+        </svg>
+      </button>
+      <button class="float-btn" title="Bookmark" onclick="toggleBookmark(this)">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+          />
+        </svg>
+      </button>
+      <button class="float-btn" title="Share" onclick="sharePost()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- ── COVER IMAGE ── -->
+    <div class="cover-wrap">
+      <img
+        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&q=85"
+        alt="Minimalist home setup"
+      />
+    </div>
+
+    <!-- ── ARTICLE ── -->
+    <article class="article-outer" id="article">
+      <!-- Title -->
+      <h1 class="post-title">Embracing Minimalism in the Digital Age</h1>
+
+      <!-- Author bar -->
+      <div class="author-bar">
+        <div class="author-left">
+          <div class="avatar av-elena"></div>
+          <div>
+            <div class="author-name">Elena Rodriguez</div>
+            <div class="author-meta">
+              March 26, 2026
+              <span class="dot">·</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <circle cx="12" cy="12" r="10" stroke-width="2" />
+                <path stroke-linecap="round" stroke-width="2" d="M12 6v6l4 2" />
+              </svg>
+              6 min read
+            </div>
+          </div>
+        </div>
+        <button class="btn-follow">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+            />
+          </svg>
+          Follow
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="post-body">
+        <h2>Digital Minimalism</h2>
+
+        <p>
+          The digital age has brought unprecedented connectivity, but also
+          overwhelming complexity. Digital minimalism is about being intentional
+          with technology, not abandoning it.
+        </p>
+
+        <p>
+          Start by auditing your digital life. Which apps truly add value? Which
+          ones are just noise? Be ruthless in your evaluation.
+        </p>
+
+        <blockquote>
+          "The ability to simplify means to eliminate the unnecessary so that
+          the necessary may speak." — Hans Hofmann
+        </blockquote>
+
+        <h2>The Benefits</h2>
+
+        <p>
+          When you reduce digital clutter, you'll find yourself with more time,
+          better focus, and reduced anxiety. It's not about deprivation—it's
+          about making room for what matters.
+        </p>
+
+        <p>
+          Research consistently shows that constant notifications fragment
+          attention and raise cortisol levels. By pruning your digital
+          environment, you're not just decluttering a phone screen—you're
+          reclaiming your cognitive bandwidth.
+        </p>
+
+        <figure class="post-img">
+          <img
+            src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1000&q=80"
+            alt="Clean desk with notebook and coffee"
+          />
+          <figcaption>
+            A clean workspace promotes clarity of thought.
+          </figcaption>
+        </figure>
+
+        <h2>Where to Start</h2>
+
+        <p>
+          The process doesn't have to be overwhelming. Think of it as three
+          distinct layers:
+        </p>
+
+        <ul>
+          <li>
+            <strong>Devices</strong> — Remove every app you haven't opened in 30
+            days. No exceptions.
+          </li>
+          <li>
+            <strong>Notifications</strong> — Allow only calls and calendar
+            alerts. Everything else is on-demand.
+          </li>
+          <li>
+            <strong>Subscriptions</strong> — Audit your email list. Unsubscribe
+            from anything you skim without reading.
+          </li>
+        </ul>
+
+        <h3>The one-week experiment</h3>
+
+        <p>
+          Try a single week of intentional digital use. Keep a small notebook
+          and write down every time you reach for your phone out of habit rather
+          than need. The results are often surprising—and sometimes unsettling.
+        </p>
+
+        <p>
+          After the week, you'll have a clear picture of where your attention
+          actually goes, versus where you <em>think</em> it goes. That gap is
+          where the work begins.
+        </p>
+
+        <h2>Building New Habits</h2>
+
+        <p>
+          Minimalism isn't a one-time event—it's an ongoing practice. Schedule
+          quarterly reviews of your digital tools. Ask yourself: is this still
+          serving me? Does this align with where I want to go?
+        </p>
+
+        <p>
+          The goal isn't a perfectly empty phone. The goal is a phone—and a
+          digital life—that feels like it belongs to you, not the other way
+          around.
+        </p>
+      </div>
+
+      <!-- Tags -->
+      <div class="tags-row">
+        <span class="tag-badge">minimalism</span>
+        <span class="tag-badge">technology</span>
+        <span class="tag-badge">digital-wellness</span>
+      </div>
+
+      <!-- Actions bar -->
+      <div class="actions-bar">
+        <div class="actions-left">
+          <button class="action-btn" id="like-btn" onclick="toggleLike()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+            <span id="like-count">567</span>
+          </button>
+          <button
+            class="action-btn"
+            onclick="document.querySelector('.comment-form textarea').focus()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+            0
+          </button>
+        </div>
+        <div class="actions-right">
+          <button
+            class="icon-btn"
+            onclick="toggleBookmark(this)"
+            title="Bookmark"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+              />
+            </svg>
+          </button>
+          <button class="icon-btn" onclick="sharePost()" title="Share">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Author bio card -->
+      <div class="author-bio-card">
+        <div
+          class="avatar av-elena"
+          style="width: 56px; height: 56px; border-radius: 50%"
+        ></div>
+        <div class="bio-content">
+          <div class="bio-name">Elena Rodriguez</div>
+          <p class="bio-text">
+            Product designer with a passion for beautiful interfaces and
+            meaningful experiences.
+          </p>
+          <div class="bio-stats">
+            <span>2,341 followers</span>
+            <span class="dot">·</span>
+            <span>478 following</span>
+          </div>
+        </div>
+        <button class="bio-follow">Follow</button>
+      </div>
+
+      <!-- Comments -->
+      <div class="comments-section">
+        <h2 class="comments-title">Comments (0)</h2>
+        <div class="comment-form">
+          <textarea placeholder="Share your thoughts..."></textarea>
+          <div class="comment-form-footer">
+            <button class="btn-post-comment">Post Comment</button>
+          </div>
+        </div>
+
+        <!-- Example comment (will be dynamic in Django) -->
+        <div class="comment-list">
+          <div class="comment-item">
+            <div
+              class="avatar"
+              style="
+                background: #b8c9d8;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                flex-shrink: 0;
+                margin-top: 2px;
+              "
+            ></div>
+            <div>
+              <span class="comment-author">Sarah Chen</span>
+              <span class="comment-date">Mar 27</span>
+              <p class="comment-text">
+                This resonates so deeply. I deleted half my apps last month and
+                the mental clarity has been remarkable. Thanks for articulating
+                it so well.
+              </p>
+              <button class="comment-reply">↩ Reply</button>
+
+              <div class="replies">
+                <div class="reply-item">
+                  <div
+                    class="avatar av-elena"
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      border-radius: 50%;
+                      flex-shrink: 0;
+                      background: #c8b89a;
+                    "
+                  ></div>
+                  <div>
+                    <span class="comment-author" style="font-size: 13px"
+                      >Elena Rodriguez</span
+                    >
+                    <span class="comment-date">Mar 27</span>
+                    <p class="comment-text" style="font-size: 14px">
+                      Thank you Sarah! That first week is the hardest, but so
+                      worth it.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── RELATED STORIES ── -->
+    <section class="related-section">
+      <h2 class="related-title">Related Stories</h2>
+      <div class="related-grid">
+        <a class="related-card" href="#">
+          <div class="related-card-img">
+            <img
+              src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80"
+              alt="Workspace"
+            />
+          </div>
+          <h3 class="related-card-title">
+            The Art of Productive Workspaces: How...
+          </h3>
+          <div class="related-card-meta">
+            <span>Marcus Whitfield</span>
+            <span class="dot">·</span>
+            <span>8 min</span>
+          </div>
+        </a>
+
+        <a class="related-card" href="#">
+          <div class="related-card-img">
+            <img
+              src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80"
+              alt="Coding"
+            />
+          </div>
+          <h3 class="related-card-title">
+            Building Better Software: Lessons from a Decade of...
+          </h3>
+          <div class="related-card-meta">
+            <span>Marcus Whitfield</span>
+            <span class="dot">·</span>
+            <span>12 min</span>
+          </div>
+        </a>
+
+        <a class="related-card" href="#">
+          <div class="related-card-img">
+            <img
+              src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80"
+              alt="Reading"
+            />
+          </div>
+          <h3 class="related-card-title teal">
+            The Joy of Slow Reading in a Fast-Paced World
+          </h3>
+          <div class="related-card-meta">
+            <span>Sarah Chen</span>
+            <span class="dot">·</span>
+            <span>5 min</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <script>
+      // ── Reading progress bar
+      window.addEventListener("scroll", () => {
+        const article = document.getElementById("article");
+        const scrollTop = window.scrollY;
+        const docHeight =
+          article.offsetTop + article.offsetHeight - window.innerHeight;
+        const pct = Math.min(100, (scrollTop / docHeight) * 100);
+        document.getElementById("progress-bar").style.width = pct + "%";
+
+        // Show floating sidebar after scrolling past author bar
+        const floatLike = document.getElementById("float-like");
+        if (scrollTop > 300) floatLike.classList.add("visible");
+        else floatLike.classList.remove("visible");
+      });
+
+      // ── Like toggle
+      let liked = false;
+      let likeCount = 567;
+      function toggleLike() {
+        liked = !liked;
+        likeCount += liked ? 1 : -1;
+        const countEl = document.getElementById("like-count");
+        const floatEl = document.getElementById("float-count");
+        const btn = document.getElementById("like-btn");
+        const floatBtn = document.getElementById("float-like-btn");
+        if (countEl) countEl.textContent = likeCount;
+        if (floatEl) floatEl.textContent = likeCount;
+        btn.classList.toggle("liked", liked);
+        floatBtn.classList.toggle("liked", liked);
+        // Fill the heart
+        const hearts = document.querySelectorAll(
+          "#like-btn svg path, #float-like-btn svg path",
+        );
+        hearts.forEach((p) =>
+          p.setAttribute("fill", liked ? "currentColor" : "none"),
+        );
+      }
+
+      // ── Bookmark toggle
+      function toggleBookmark(btn) {
+        btn.classList.toggle("bookmarked");
+        const path = btn.querySelector("svg path");
+        if (btn.classList.contains("bookmarked")) {
+          btn.style.color = "var(--teal)";
+          path.setAttribute("fill", "currentColor");
+        } else {
+          btn.style.color = "";
+          path.setAttribute("fill", "none");
+        }
+      }
+
+      // ── Share
+      function sharePost() {
+        if (navigator.share) {
+          navigator.share({ title: document.title, url: window.location.href });
+        } else {
+          navigator.clipboard.writeText(window.location.href);
+          alert("Link copied to clipboard!");
+        }
+      }
+
+      // ── Follow buttons
+      document.querySelectorAll(".btn-follow, .bio-follow").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const following = btn.textContent.trim() === "Following";
+          btn.textContent = following ? "Follow" : "Following";
+          btn.style.background = following ? "var(--teal)" : "transparent";
+          btn.style.color = following ? "#fff" : "var(--teal)";
+          btn.style.border = following ? "none" : "1px solid var(--teal)";
+        });
+      });
+    </script>
+  </body>
+</html>

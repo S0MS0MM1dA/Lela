@@ -1,0 +1,283 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --teal: #1e7b77;
+  --teal-dark: #186360;
+  --teal-link: #1a6b67;
+  --page-bg: #f4f3ee;
+  --white: #ffffff;
+  --border: #e2e2dc;
+  --input-bg: #f2f2ec;
+  --text-black: #111111;
+  --text-dark: #222222;
+  --text-mid: #555550;
+  --text-soft: #888882;
+  --serif: "Playfair Display", Georgia, serif;
+  --sans: "Inter", -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--page-bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+/* ── BRAND TITLE ── */
+.brand {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-black);
+  letter-spacing: -0.3px;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+/* ── AUTH CARD ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 40px 36px;
+  width: 100%;
+  max-width: 460px;
+}
+
+.card-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-black);
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+
+.card-subtitle {
+  font-size: 14.5px;
+  color: var(--text-soft);
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+/* ── GOOGLE BUTTON ── */
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+  margin-bottom: 20px;
+}
+.btn-google:hover {
+  background: #fafaf8;
+  border-color: #c8c8c2;
+}
+.google-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.divider span {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+/* ── FORM ── */
+.form-group {
+  margin-bottom: 18px;
+}
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+.form-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 14px;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  color: var(--text-dark);
+  outline: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.form-input::placeholder {
+  color: var(--text-soft);
+}
+.form-input:focus {
+  border-color: var(--teal);
+  background: #fff;
+}
+
+/* Password wrapper with eye icon */
+.input-wrap {
+  position: relative;
+}
+.input-wrap .form-input {
+  padding-right: 44px;
+}
+.eye-btn {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-soft);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+.eye-btn:hover {
+  color: var(--text-mid);
+}
+
+/* Forgot password link */
+.forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.link {
+  font-size: 14px;
+  color: var(--teal-link);
+  text-decoration: none;
+  cursor: pointer;
+}
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ── SUBMIT BUTTON ── */
+.btn-submit {
+  display: block;
+  width: 100%;
+  background: var(--teal);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 15.5px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.2s;
+  letter-spacing: 0.1px;
+}
+.btn-submit:hover {
+  background: var(--teal-dark);
+}
+
+/* ── SWITCH LINK ── */
+.switch-row {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--text-mid);
+}
+.switch-row a {
+  color: var(--teal-link);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.switch-row a:hover {
+  text-decoration: underline;
+}
+
+/* ── FOOTER TEXT ── */
+.footer-text {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-soft);
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.6;
+}
+.footer-text a {
+  color: var(--teal-link);
+  text-decoration: none;
+}
+.footer-text a:hover {
+  text-decoration: underline;
+}
+
+/* ── HELP BUTTON (register page) ── */
+.help-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  border: none;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── PAGE SWITCH ── */
+.page {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.page.active {
+  display: flex;
+}
