@@ -97,7 +97,7 @@ def signup(request):
             password=password1
         )
         login(request, user)
-        messages.success(request, f'Welcome to Inkwell, {username}!')
+        messages.success(request, f'Welcome to Lela, {username}!')
         return redirect('home')
 
     return render(request, 'accounts/signup.html')
@@ -130,25 +130,50 @@ def signout(request):
 @login_required
 def post_create(request):
     if request.method == 'POST':
-        title  = request.POST['title']
-        body   = request.POST['body']
-        status = request.POST.get('status', 'draft')
+        title    = request.POST.get('title', '').strip()
+        body     = request.POST.get('body', '').strip()
+        status   = request.POST.get('status', 'draft')
+        cat_id   = request.POST.get('category')
+        tag_ids  = request.POST.getlist('tags')
+        cover    = request.FILES.get('cover_image')
+
+        if not title:
+            messages.error(request, 'Title is required.')
+            return redirect('post_create')
 
         post = Post.objects.create(
             title=title,
             body=body,
             author=request.user,
             status=status,
+            cover_image=cover if cover else None,
         )
-        return redirect('post_detail', slug=post.slug)
+
+        if cat_id:
+            try:
+                post.category = Category.objects.get(id=cat_id)
+            except Category.DoesNotExist:
+                pass
+
+        if tag_ids:
+            post.tags.set(Tag.objects.filter(id__in=tag_ids))
+
+        post.save()
+
+        if status == 'published':
+            messages.success(request, 'Post published successfully.')
+            return redirect('post_detail', slug=post.slug)
+        else:
+            messages.success(request, 'Draft saved.')
+            return redirect('dashboard_drafts')
 
     categories = Category.objects.all()
     tags       = Tag.objects.all()
     return render(request, 'blog/post_form.html', {
         'categories': categories,
         'tags':       tags,
+        'mode':       'create',
     })
-
 
 # ── POST EDIT ────────────────────────────────────────────────
 @login_required
@@ -156,18 +181,47 @@ def post_edit(request, slug):
     post = get_object_or_404(Post, slug=slug, author=request.user)
 
     if request.method == 'POST':
-        post.title  = request.POST['title']
-        post.body   = request.POST['body']
-        post.status = request.POST.get('status', 'draft')
+        title   = request.POST.get('title', '').strip()
+        body    = request.POST.get('body', '').strip()
+        status  = request.POST.get('status', 'draft')
+        cat_id  = request.POST.get('category')
+        tag_ids = request.POST.getlist('tags')
+        cover   = request.FILES.get('cover_image')
+
+        if not title:
+            messages.error(request, 'Title is required.')
+            return redirect('post_edit', slug=slug)
+
+        post.title  = title
+        post.body   = body
+        post.status = status
+        if cover:
+            post.cover_image = cover
+
+        if cat_id:
+            try:
+                post.category = Category.objects.get(id=cat_id)
+            except Category.DoesNotExist:
+                pass
+
+        post.tags.set(Tag.objects.filter(id__in=tag_ids))
         post.save()
-        return redirect('post_detail', slug=post.slug)
+
+        if status == 'published':
+            messages.success(request, 'Post updated and published.')
+            return redirect('post_detail', slug=post.slug)
+        else:
+            messages.success(request, 'Draft saved.')
+            return redirect('dashboard_drafts')
 
     categories = Category.objects.all()
     tags       = Tag.objects.all()
     return render(request, 'blog/post_form.html', {
-        'post':       post,
-        'categories': categories,
-        'tags':       tags,
+        'post':        post,
+        'categories':  categories,
+        'tags':        tags,
+        'mode':        'edit',
+        'post_tags':   list(post.tags.values_list('id', flat=True)),
     })
 
 
@@ -275,3 +329,58 @@ def delete_post(request, slug):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'success': True})
     return redirect('dashboard')
+
+@login_required
+def toggle_like(request, slug):
+    post    = get_object_or_404(Post, slug=slug)
+    liked   = False
+    like    = Like.objects.filter(user=request.user, post=post).first()
+
+    if like:
+        like.delete()
+    else:
+        Like.objects.create(user=request.user, post=post)
+        liked = True
+
+    return JsonResponse({
+        'success': True,
+        'liked':   liked,
+        'count':   post.like_count(),
+    })
+
+
+@login_required
+def toggle_bookmark(request, slug):
+    post       = get_object_or_404(Post, slug=slug)
+    bookmarked = False
+    bookmark   = Bookmark.objects.filter(user=request.user, post=post).first()
+
+    if bookmark:
+        bookmark.delete()
+    else:
+        Bookmark.objects.create(user=request.user, post=post)
+        bookmarked = True
+
+    return JsonResponse({
+        'success':    True,
+        'bookmarked': bookmarked,
+    })
+
+from django.db.models import Q
+
+def search(request):
+    query   = request.GET.get('q', '').strip()
+    results = []
+
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(body__icontains=query)  |
+            Q(tags__name__icontains=query),
+            status='published'
+        ).distinct().order_by('-created_at')
+
+    return render(request, 'blog/search.html', {
+        'query':   query,
+        'results': results,
+    })

@@ -1,498 +1,316 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lela – Write</title>
+    <title>
+      {% if mode == 'edit' %}Edit Post{% else %}Write{% endif %} — Lela
+    </title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="{% static 'blog/css/write-blog.css' %}" />
+    <!-- Quill CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'blog/css/post_form.css' %}" />
   </head>
   <body>
-    <!-- ══ TOP BAR ══ -->
-    <header class="topbar">
-      <button class="close-btn" title="Close">
-        <svg
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          stroke-linecap="round"
-        >
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
-
-      <div class="topbar-right">
-        <div class="autosave">
-          <div class="autosave-dot saved" id="autosaveDot"></div>
-          <span id="autosaveText">All changes saved</span>
-        </div>
-        <span class="word-count" id="wordCountDisplay">0 words</span>
-        <button class="btn-save-draft" id="saveDraftBtn">
-          <svg
-            width="15"
-            height="15"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            viewBox="0 0 24 24"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
-            />
-            <polyline points="17 21 17 13 7 13 7 21" />
-            <polyline points="7 3 7 8 15 8" />
-          </svg>
-          Save Draft
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <a class="topbar-logo" href="{% url 'home' %}">Lela</a>
+      <span class="topbar-status" id="autosave-status"></span>
+      <div class="topbar-actions">
+        <button class="btn-draft" onclick="submitForm('draft')">
+          Save draft
         </button>
-        <button class="btn-publish">
-          <svg
-            width="14"
-            height="14"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            viewBox="0 0 24 24"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <line x1="22" y1="2" x2="11" y2="13" />
-            <polygon points="22 2 15 22 11 13 2 9 22 2" />
-          </svg>
+        <button class="btn-publish" onclick="submitForm('published')">
           Publish
         </button>
       </div>
-    </header>
-
-    <!-- ══ EDITOR LAYOUT ══ -->
-    <div class="editor-layout">
-      <!-- LEFT: EDITOR -->
-      <div class="editor-main">
-        <!-- Story Title -->
-        <textarea
-          class="story-title"
-          id="storyTitle"
-          placeholder="Your story title..."
-          rows="1"
-          oninput="
-            autoResize(this);
-            updateStats();
-          "
-        ></textarea>
-
-        <!-- Toolbar -->
-        <div class="toolbar">
-          <select
-            class="toolbar-select"
-            id="formatSelect"
-            onchange="
-              execFormat(this.value);
-              this.value = 'Normal';
-            "
-          >
-            <option value="Normal">Normal</option>
-            <option value="H1">Heading 1</option>
-            <option value="H2">Heading 2</option>
-            <option value="H3">Heading 3</option>
-          </select>
-
-          <div class="toolbar-divider"></div>
-
-          <button class="tool-btn" title="Bold" onclick="fmt('bold')">
-            <b>B</b>
-          </button>
-          <button class="tool-btn" title="Italic" onclick="fmt('italic')">
-            <i style="font-style: italic; font-family: Georgia">I</i>
-          </button>
-          <button class="tool-btn" title="Underline" onclick="fmt('underline')">
-            <u>U</u>
-          </button>
-          <button
-            class="tool-btn"
-            title="Strikethrough"
-            onclick="fmt('strikeThrough')"
-          >
-            <s>S</s>
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <button
-            class="tool-btn"
-            title="Blockquote"
-            onclick="insertBlockquote()"
-          >
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"
-              />
-              <path
-                d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"
-              />
-            </svg>
-          </button>
-          <button
-            class="tool-btn"
-            title="Code"
-            onclick="
-              fmt(
-                'insertHTML',
-                '<code style=\'background:#f0f0e8;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px\'>`code`</code>',
-              )
-            "
-          >
-            <svg viewBox="0 0 24 24">
-              <polyline points="16 18 22 12 16 6" />
-              <polyline points="8 6 2 12 8 18" />
-            </svg>
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <button
-            class="tool-btn"
-            title="Ordered List"
-            onclick="fmt('insertOrderedList')"
-          >
-            <svg viewBox="0 0 24 24">
-              <line x1="10" y1="6" x2="21" y2="6" />
-              <line x1="10" y1="12" x2="21" y2="12" />
-              <line x1="10" y1="18" x2="21" y2="18" />
-              <path d="M4 6h1v4" />
-              <path d="M4 10h2" />
-              <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
-            </svg>
-          </button>
-          <button
-            class="tool-btn"
-            title="Bullet List"
-            onclick="fmt('insertUnorderedList')"
-          >
-            <svg viewBox="0 0 24 24">
-              <line x1="8" y1="6" x2="21" y2="6" />
-              <line x1="8" y1="12" x2="21" y2="12" />
-              <line x1="8" y1="18" x2="21" y2="18" />
-              <line x1="3" y1="6" x2="3.01" y2="6" />
-              <line x1="3" y1="12" x2="3.01" y2="12" />
-              <line x1="3" y1="18" x2="3.01" y2="18" />
-            </svg>
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <button class="tool-btn" title="Insert Link" onclick="insertLink()">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-              />
-              <path
-                d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-              />
-            </svg>
-          </button>
-          <button class="tool-btn" title="Insert Image" onclick="insertImg()">
-            <svg viewBox="0 0 24 24">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
-          </button>
-
-          <div class="toolbar-divider"></div>
-
-          <button
-            class="tool-btn"
-            title="Clear Formatting"
-            onclick="fmt('removeFormat')"
-          >
-            <svg viewBox="0 0 24 24">
-              <path d="M4 7V4h16v3" />
-              <path d="M5 20h6" />
-              <path d="M13 4l-4 16" />
-              <line x1="17" y1="14" x2="22" y2="19" />
-              <line x1="22" y1="14" x2="17" y2="19" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Body -->
-        <div
-          class="story-body"
-          id="storyBody"
-          contenteditable="true"
-          data-placeholder="Tell your story..."
-          oninput="
-            updateStats();
-            triggerAutosave();
-          "
-        ></div>
-      </div>
-
-      <!-- RIGHT: SIDEBAR -->
-      <aside class="sidebar-right">
-        <!-- Reading time — added enhancement -->
-        <div class="reading-time-card">
-          <svg
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            viewBox="0 0 24 24"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-          <div>
-            <div class="reading-time-label">Estimated read time</div>
-            <div class="reading-time-val" id="readingTime">— min read</div>
-          </div>
-        </div>
-
-        <!-- Cover Image -->
-        <div class="sidebar-card">
-          <div class="sidebar-card-title">Cover Image</div>
-          <div class="cover-upload" id="coverUploadZone">
-            <input
-              type="file"
-              accept="image/*"
-              onchange="previewCover(event)"
-            />
-            <img class="cover-preview" id="coverPreview" alt="Cover preview" />
-            <svg
-              width="28"
-              height="28"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              viewBox="0 0 24 24"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              id="coverIcon"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-            <span id="coverLabel">Upload cover image</span>
-            <span class="cover-hint" id="coverHint">PNG, JPG up to 5MB</span>
-          </div>
-        </div>
-
-        <!-- Category -->
-        <div class="sidebar-card">
-          <div class="sidebar-card-title">Category</div>
-          <select class="sidebar-select">
-            <option>Technology</option>
-            <option>Design</option>
-            <option>Culture</option>
-            <option>Science</option>
-            <option>Business</option>
-            <option>Health</option>
-            <option>Travel</option>
-            <option>Food</option>
-            <option>Politics</option>
-            <option>Education</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <!-- Tags -->
-        <div class="sidebar-card">
-          <div class="sidebar-card-title">Tags</div>
-          <div
-            class="tags-wrap"
-            id="tagsWrap"
-            onclick="document.getElementById('tagInput').focus()"
-          >
-            <input
-              class="tags-input"
-              id="tagInput"
-              placeholder="Add a tag and press Enter"
-              onkeydown="handleTag(event)"
-            />
-          </div>
-        </div>
-
-        <!-- SEO Description -->
-        <div class="sidebar-card">
-          <div class="sidebar-card-title">SEO Description</div>
-          <textarea
-            class="seo-textarea"
-            id="seoText"
-            placeholder="A brief description for search engines..."
-            maxlength="160"
-            oninput="updateCharCount()"
-          ></textarea>
-          <div class="char-count" id="charCount">0/160 characters</div>
-        </div>
-      </aside>
     </div>
 
+    {% if messages %} {% for message in messages %}
+    <div class="msg-banner {{ message.tags }}">{{ message }}</div>
+    {% endfor %} {% endif %}
+
+    <!-- FORM wraps everything -->
+    <form id="post-form" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="status" id="status-input" value="draft" />
+      <!-- Hidden field Quill writes into -->
+      <div id="body-data" style="display: none">
+        {% if post %}{{ post.body|safe }}{% endif %}
+      </div>
+      <input type="hidden" name="body" id="body-input" value="" />
+
+      <div class="editor-layout">
+        <!-- LEFT — EDITOR -->
+        <div class="editor-main">
+          <textarea
+            class="title-input"
+            name="title"
+            placeholder="Your story title..."
+            rows="2"
+            oninput="autoResize(this)"
+          >
+{% if post %}{{ post.title }}{% endif %}</textarea
+          >
+
+          <div class="title-divider"></div>
+
+          <!-- Quill editor mounts here -->
+          <div id="quill-editor"></div>
+        </div>
+
+        <!-- RIGHT — SETTINGS -->
+        <div class="editor-side">
+          <!-- Cover image -->
+          <div class="side-card">
+            <p class="side-card-title">Cover Image</p>
+            <label class="cover-upload" id="cover-label">
+              <input
+                type="file"
+                name="cover_image"
+                accept="image/*"
+                onchange="previewCover(this)"
+              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p>Click to upload cover image</p>
+              {% if post and post.cover_image %}
+              <img
+                class="cover-preview"
+                id="cover-preview"
+                src="{{ post.cover_image.url }}"
+                style="display: block"
+              />
+              <button
+                class="cover-remove"
+                id="cover-remove"
+                style="display: flex"
+                type="button"
+                onclick="removeCover(event)"
+              >
+                ✕
+              </button>
+              {% else %}
+              <img class="cover-preview" id="cover-preview" src="" alt="" />
+              <button
+                class="cover-remove"
+                id="cover-remove"
+                type="button"
+                onclick="removeCover(event)"
+              >
+                ✕
+              </button>
+              {% endif %}
+            </label>
+          </div>
+
+          <!-- Category -->
+          <div class="side-card">
+            <p class="side-card-title">Category</p>
+            <select class="side-select" name="category">
+              <option value="">— No category —</option>
+              {% for cat in categories %}
+              <option
+                value="{{ cat.id }}"
+                {%
+                if
+                post
+                and
+                post.category_id=""
+                ="cat.id"
+                %}selected{%
+                endif
+                %}
+              >
+                {{ cat.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Tags -->
+          <div class="side-card">
+            <p class="side-card-title">Tags</p>
+            <div class="tags-grid">
+              {% for tag in tags %}
+              <input
+                class="tag-check"
+                type="checkbox"
+                name="tags"
+                value="{{ tag.id }}"
+                id="tag-{{ tag.id }}"
+                {%
+                if
+                post_tags
+                and
+                tag.id
+                in
+                post_tags
+                %}checked{%
+                endif
+                %}
+              />
+              <label class="tag-label" for="tag-{{ tag.id }}"
+                >{{ tag.name }}</label
+              >
+              {% empty %}
+              <p style="font-size: 13px; color: var(--text-3)">
+                No tags yet.
+                <a href="/admin/blog/tag/add/" style="color: var(--teal)"
+                  >Add in admin →</a
+                >
+              </p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Post info (edit mode only) -->
+          {% if mode == 'edit' and post %}
+          <div class="side-card">
+            <p class="side-card-title">Post Info</p>
+            <p
+              style="font-size: 13px; color: var(--text-2); margin-bottom: 6px"
+            >
+              Views: <strong>{{ post.views }}</strong>
+            </p>
+            <p
+              style="font-size: 13px; color: var(--text-2); margin-bottom: 6px"
+            >
+              Read time: <strong>{{ post.read_time }} min</strong>
+            </p>
+            <p style="font-size: 13px; color: var(--text-2)">
+              Created: <strong>{{ post.created_at|date:"M d, Y" }}</strong>
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+
+    <!-- Quill JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
     <script>
-      /* ── Auto-resize title textarea ── */
+      // ── Init Quill
+      const quill = new Quill("#quill-editor", {
+        theme: "snow",
+        placeholder: "Tell your story...",
+        modules: {
+          toolbar: [
+            [{ header: [2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            ["blockquote", "code-block"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link", "image"],
+            ["clean"],
+          ],
+        },
+      });
+
+      // ── Load existing content safely (no unicode escaping)
+      const bodyData = document.getElementById("body-data");
+      if (bodyData && bodyData.innerHTML.trim()) {
+        quill.root.innerHTML = bodyData.innerHTML.trim();
+      }
+
+      // ── Submit form
+      function submitForm(status) {
+        document.getElementById("status-input").value = status;
+        document.getElementById("body-input").value = quill.root.innerHTML;
+
+        const title = document.querySelector('[name="title"]').value.trim();
+        if (!title) {
+          alert("Please add a title before saving.");
+          return;
+        }
+        if (quill.getText().trim().length < 10 && status === "published") {
+          alert("Please write some content before publishing.");
+          return;
+        }
+        document.getElementById("post-form").submit();
+      }
+
+      // ── Auto-resize title textarea
       function autoResize(el) {
         el.style.height = "auto";
         el.style.height = el.scrollHeight + "px";
       }
+      // Run on load
+      const titleEl = document.querySelector('[name="title"]');
+      if (titleEl) autoResize(titleEl);
 
-      /* ── Word count & reading time ── */
-      function updateStats() {
-        const titleText = document.getElementById("storyTitle").value;
-        const bodyText = document.getElementById("storyBody").innerText;
-        const combined = (titleText + " " + bodyText).trim();
-        const words = combined
-          ? combined.split(/\s+/).filter(Boolean).length
-          : 0;
-        document.getElementById("wordCountDisplay").textContent =
-          words + (words === 1 ? " word" : " words");
-        const mins = Math.max(1, Math.round(words / 200));
-        document.getElementById("readingTime").textContent = mins + " min read";
-      }
-
-      /* ── Formatting ── */
-      function fmt(cmd, val) {
-        document.getElementById("storyBody").focus();
-        document.execCommand(cmd, false, val || null);
-      }
-
-      function execFormat(val) {
-        document.getElementById("storyBody").focus();
-        if (val === "Normal") document.execCommand("formatBlock", false, "p");
-        else if (val === "H1") document.execCommand("formatBlock", false, "h1");
-        else if (val === "H2") document.execCommand("formatBlock", false, "h2");
-        else if (val === "H3") document.execCommand("formatBlock", false, "h3");
-      }
-
-      function insertBlockquote() {
-        document.getElementById("storyBody").focus();
-        document.execCommand("formatBlock", false, "blockquote");
-      }
-
-      function insertLink() {
-        const url = prompt("Enter URL:");
-        if (url) {
-          document.getElementById("storyBody").focus();
-          document.execCommand("createLink", false, url);
-        }
-      }
-
-      function insertImg() {
-        const url = prompt("Enter image URL:");
-        if (url) {
-          document.getElementById("storyBody").focus();
-          document.execCommand("insertImage", false, url);
-        }
-      }
-
-      /* ── Tags ── */
-      const tags = [];
-      function handleTag(e) {
-        if (e.key === "Enter" || e.key === ",") {
-          e.preventDefault();
-          const val = e.target.value.trim().replace(/,/g, "");
-          if (val && !tags.includes(val) && tags.length < 10) {
-            tags.push(val);
-            renderTags();
-          }
-          e.target.value = "";
-        } else if (
-          e.key === "Backspace" &&
-          e.target.value === "" &&
-          tags.length
-        ) {
-          tags.pop();
-          renderTags();
-        }
-      }
-
-      function renderTags() {
-        const wrap = document.getElementById("tagsWrap");
-        const input = document.getElementById("tagInput");
-        // remove old chips
-        wrap.querySelectorAll(".tag-chip").forEach((c) => c.remove());
-        // insert new chips before input
-        tags.forEach((tag, i) => {
-          const chip = document.createElement("span");
-          chip.className = "tag-chip";
-          chip.innerHTML = `${tag}<button onclick="removeTag(${i})" tabindex="-1">×</button>`;
-          wrap.insertBefore(chip, input);
-        });
-        // update placeholder
-        input.placeholder = tags.length ? "" : "Add a tag and press Enter";
-      }
-
-      function removeTag(i) {
-        tags.splice(i, 1);
-        renderTags();
-      }
-
-      /* ── SEO char count ── */
-      function updateCharCount() {
-        const el = document.getElementById("seoText");
-        const cc = document.getElementById("charCount");
-        const len = el.value.length;
-        cc.textContent = len + "/160 characters";
-        cc.className =
-          "char-count" + (len > 160 ? " over" : len > 130 ? " warn" : "");
-      }
-
-      /* ── Cover image preview ── */
-      function previewCover(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+      // ── Cover image preview
+      function previewCover(input) {
+        if (!input.files || !input.files[0]) return;
         const reader = new FileReader();
-        reader.onload = (ev) => {
-          const preview = document.getElementById("coverPreview");
-          preview.src = ev.target.result;
+        reader.onload = (e) => {
+          const preview = document.getElementById("cover-preview");
+          const remove = document.getElementById("cover-remove");
+          preview.src = e.target.result;
           preview.style.display = "block";
-          document.getElementById("coverIcon").style.display = "none";
-          document.getElementById("coverLabel").style.display = "none";
-          document.getElementById("coverHint").style.display = "none";
+          remove.style.display = "flex";
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(input.files[0]);
       }
 
-      /* ── Autosave indicator ── */
-      let autosaveTimer;
-      function triggerAutosave() {
-        const dot = document.getElementById("autosaveDot");
-        const text = document.getElementById("autosaveText");
-        dot.className = "autosave-dot saving";
-        text.textContent = "Saving...";
-        clearTimeout(autosaveTimer);
-        autosaveTimer = setTimeout(() => {
-          dot.className = "autosave-dot saved";
-          text.textContent = "All changes saved";
-        }, 1400);
+      function removeCover(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const preview = document.getElementById("cover-preview");
+        const remove = document.getElementById("cover-remove");
+        preview.src = "";
+        preview.style.display = "none";
+        remove.style.display = "none";
+        // Clear file input
+        const fileInput = document.querySelector('[name="cover_image"]');
+        fileInput.value = "";
       }
 
-      /* ── Save Draft button trigger ── */
-      document
-        .getElementById("saveDraftBtn")
-        .addEventListener("click", function () {
-          triggerAutosave();
-        });
+      // ── Keyboard shortcut: Ctrl/Cmd + S = save draft
+      document.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+          e.preventDefault();
+          submitForm("draft");
+        }
+      });
 
-      /* ── Focus body on click ── */
-      document
-        .querySelector(".editor-main")
-        .addEventListener("click", function (e) {
-          if (e.target === this || e.target.classList.contains("editor-main")) {
-            document.getElementById("storyBody").focus();
-          }
-        });
+      // ── Auto-save every 60 seconds
+      let autoSaveTimer = setInterval(() => {
+        const status = document.getElementById("status-input").value;
+        if (status === "draft") {
+          document.getElementById("autosave-status").textContent = "Saving...";
+          document.getElementById("body-input").value = quill.root.innerHTML;
+          setTimeout(() => {
+            document.getElementById("autosave-status").textContent =
+              "Draft saved";
+          }, 800);
+        }
+      }, 60000);
     </script>
   </body>
 </html>
+``` --- ## Step 4 — Add tags and categories via admin Before testing, go to
+`/admin` and add a few tags and categories so they show in the dropdowns: ```
+/admin/blog/tag/ ← add: technology, design, lifestyle, coding
+/admin/blog/category/ ← add: Technology, Lifestyle, Design, Culture ``` --- ##
+Test it ``` http://127.0.0.1:8000/write/ ← create new post
+http://127.0.0.1:8000/edit/<your-slug>/ ← edit existing post</your-slug>

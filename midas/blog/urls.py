@@ -21,4 +21,11 @@ urlpatterns = [
     path('dashboard/bookmarks/', views.dashboard_bookmarks, name='dashboard_bookmarks'),
     path('dashboard/settings/', views.dashboard_settings, name='dashboard_settings'),
     path('dashboard/toggle/<slug:slug>/', views.toggle_publish, name='toggle_publish'),
+
+    # Post interactions
+    path('post/like/<slug:slug>/',     views.toggle_like,     name='toggle_like'),
+    path('post/bookmark/<slug:slug>/', views.toggle_bookmark, name='toggle_bookmark'),
+
+    # Search
+    path('search/', views.search, name='search'),
 ]

@@ -40,7 +40,9 @@
               d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
             />
           </svg>
-          <input type="text" placeholder="Search..." />
+          <form method="GET" action="{% url 'search' %}" style="width: 100%">
+            <input type="text" name="q" placeholder="Search..." />
+          </form>
         </div>
         <div class="nav-right">
           <a class="btn-signin" href="{% url 'signin' %}">Sign In</a>
@@ -69,7 +71,7 @@
       <button
         class="float-btn"
         id="float-like-btn"
-        onclick="toggleLike()"
+        onclick="handleLike()"
         title="Like"
       >
         <svg
@@ -86,7 +88,7 @@
           />
         </svg>
       </button>
-      <span class="float-count" id="float-count">567</span>
+      <span class="float-count" id="float-count">{{ post.like_count }}</span>
       <button
         class="float-btn"
         title="Comment"
@@ -106,7 +108,7 @@
           />
         </svg>
       </button>
-      <button class="float-btn" title="Bookmark" onclick="toggleBookmark(this)">
+      <button class="float-btn" title="Bookmark" onclick="handleBookmark()">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -175,7 +177,37 @@
             </div>
           </div>
         </div>
-        {% if request.user.is_authenticated and request.user != post.author %}
+
+        {% if request.user == post.author %}
+        <!-- Show edit button to the author -->
+        <a
+          href="{% url 'post_edit' post.slug %}"
+          class="btn-follow"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+          "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            style="width: 15px; height: 15px"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+            />
+          </svg>
+          Edit post
+        </a>
+        {% elif request.user.is_authenticated %}
+        <!-- Show follow button to other logged-in users -->
         <button class="btn-follow">Follow</button>
         {% endif %}
       </div>
@@ -196,6 +228,7 @@
           <button
             class="action-btn {% if user_liked %}liked{% endif %}"
             id="like-btn"
+            onclick="handleLike()"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -232,6 +265,8 @@
         <div class="actions-right">
           <button
             class="icon-btn {% if user_bookmarked %}bookmarked{% endif %}"
+            id="bookmark-btn"
+            onclick="handleBookmark()"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -415,6 +450,76 @@
     </section>
 
     <script>
+      const SLUG      = '{{ post.slug }}';
+      const CSRF      = '{{ csrf_token }}';
+      const IS_AUTH   = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+      const SIGNIN_URL = '{% url "signin" %}';
+
+      // ── LIKE
+      async function handleLike() {
+        if (!IS_AUTH) { window.location = SIGNIN_URL; return; }
+
+        const btn   = document.getElementById('like-btn');
+        const count = document.getElementById('like-count');
+
+        const res  = await fetch(`/post/like/${SLUG}/`, {
+          method:  'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken':      CSRF,
+          }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          count.textContent = data.count;
+          btn.classList.toggle('liked', data.liked);
+          const path = btn.querySelector('svg path');
+          path.setAttribute('fill', data.liked ? 'currentColor' : 'none');
+
+          // Also sync floating sidebar like button
+          const floatBtn = document.getElementById('float-like-btn');
+          const floatCount = document.getElementById('float-count');
+          if (floatBtn) {
+            floatBtn.classList.toggle('liked', data.liked);
+            floatBtn.querySelector('svg path').setAttribute('fill', data.liked ? 'currentColor' : 'none');
+          }
+          if (floatCount) floatCount.textContent = data.count;
+        }
+      }
+
+      // ── BOOKMARK
+      async function handleBookmark() {
+        if (!IS_AUTH) { window.location = SIGNIN_URL; return; }
+
+        const btn = document.getElementById('bookmark-btn');
+
+        const res  = await fetch(`/post/bookmark/${SLUG}/`, {
+          method:  'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken':      CSRF,
+          }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          btn.classList.toggle('bookmarked', data.bookmarked);
+          const path = btn.querySelector('svg path');
+          path.setAttribute('fill', data.bookmarked ? 'currentColor' : 'none');
+          btn.style.color = data.bookmarked ? 'var(--teal)' : '';
+
+          // Also sync floating sidebar bookmark
+          const floatBookmark = document.querySelector('#float-like ~ .float-btn[title="Bookmark"]');
+          if (floatBookmark) {
+            floatBookmark.querySelector('svg path').setAttribute('fill', data.bookmarked ? 'currentColor' : 'none');
+            floatBookmark.style.color = data.bookmarked ? 'var(--teal)' : '';
+          }
+        }
+      }
+    </script>
+
+    <script>
       // ── Reading progress bar
       window.addEventListener("scroll", () => {
         const article = document.getElementById("article");
@@ -430,6 +535,7 @@
         else floatLike.classList.remove("visible");
       });
 
+      /*
       // ── Like toggle
       let liked = false;
       let likeCount = 567;
@@ -465,7 +571,7 @@
           path.setAttribute("fill", "none");
         }
       }
-
+      */
       // ── Share
       function sharePost() {
         if (navigator.share) {
@@ -489,50 +595,47 @@
 
       // AJAX Comment Section
       const form = document.getElementById("comment-form");
-      const body = document.getElementById("comment-body");
       const list = document.getElementById("comment-list");
       const count = document.getElementById("comment-count");
-      const error = document.getElementById("comment-error");
-      const submit = document.getElementById("comment-submit");
 
-      form.addEventListener("submit", async function (e) {
-        e.preventDefault(); // stop full page reload
+      if (form) {
+        const body = document.getElementById("comment-body");
+        const error = document.getElementById("comment-error");
+        const submit = document.getElementById("comment-submit");
 
-        // Client-side validation
-        if (!body.value.trim()) {
-          error.style.display = "block";
-          return;
-        }
-        error.style.display = "none";
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-        // Disable button while sending
-        submit.disabled = true;
-        submit.textContent = "Posting...";
+          if (!body.value.trim()) {
+            error.style.display = "block";
+            return;
+          }
+          error.style.display = "none";
 
-        // Build form data
-        const data = new FormData(form);
+          submit.disabled = true;
+          submit.textContent = "Posting...";
 
-        try {
-          const response = await fetch(window.location.href, {
-            method: "POST",
-            headers: { "X-Requested-With": "XMLHttpRequest" },
-            body: data,
-          });
+          const data = new FormData(form);
 
-          const result = await response.json();
+          try {
+            const response = await fetch(window.location.href, {
+              method: "POST",
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+              body: data,
+            });
 
-          if (result.success) {
-            // Remove "no comments" empty state if present
-            const empty = list.querySelector("p");
-            if (empty) empty.remove();
+            const result = await response.json();
 
-            // Build new comment HTML and inject at top of list
-            const newComment = document.createElement("div");
-            newComment.className = "comment-item";
-            newComment.style.opacity = "0";
-            newComment.style.transform = "translateY(-8px)";
-            newComment.style.transition = "opacity .3s, transform .3s";
-            newComment.innerHTML = `
+            if (result.success) {
+              const empty = list.querySelector("p");
+              if (empty) empty.remove();
+
+              const newComment = document.createElement("div");
+              newComment.className = "comment-item";
+              newComment.style.opacity = "0";
+              newComment.style.transform = "translateY(-8px)";
+              newComment.style.transition = "opacity .3s, transform .3s";
+              newComment.innerHTML = `
           <div class="avatar" style="background:#B8C9D8;width:36px;height:36px;border-radius:50%;flex-shrink:0;margin-top:2px;"></div>
           <div>
             <span class="comment-author">${result.username}</span>
@@ -540,27 +643,24 @@
             <p class="comment-text">${result.body}</p>
           </div>
         `;
-            list.prepend(newComment);
+              list.prepend(newComment);
 
-            // Animate in
-            requestAnimationFrame(() => {
-              newComment.style.opacity = "1";
-              newComment.style.transform = "translateY(0)";
-            });
+              requestAnimationFrame(() => {
+                newComment.style.opacity = "1";
+                newComment.style.transform = "translateY(0)";
+              });
 
-            // Update comment count
-            count.textContent = parseInt(count.textContent) + 1;
-
-            // Clear textarea
-            body.value = "";
+              count.textContent = parseInt(count.textContent) + 1;
+              body.value = "";
+            }
+          } catch (err) {
+            console.error("Comment failed:", err);
+          } finally {
+            submit.disabled = false;
+            submit.textContent = "Post Comment";
           }
-        } catch (err) {
-          console.error("Comment failed:", err);
-        } finally {
-          submit.disabled = false;
-          submit.textContent = "Post Comment";
-        }
-      });
+        });
+      }
     </script>
   </body>
 </html>

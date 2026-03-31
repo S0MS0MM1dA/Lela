@@ -68,11 +68,7 @@ My Posts
       {{ post.views }}
     </div>
     <div class="actions-cell">
-      <a
-        class="action-icon"
-        href="{% url 'post_edit' post.slug %}"
-        title="Edit"
-      >
+      <a href="{% url 'post_edit' post.slug %}">Edit</a>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
