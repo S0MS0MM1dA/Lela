@@ -39,7 +39,7 @@
           <input type="text" placeholder="Search..." />
         </div>
         <div class="nav-right">
-          <a class="btn-signin" href="../accounts/signin/">Sign In</a>
+          <a class="btn-signin" href="{% url 'signin' %}">Sign In</a>
           <a class="btn-write" href="../dashboard/">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -62,48 +62,39 @@
 
     <!-- ── HERO (FEATURED POST) ── -->
     <section class="hero">
+      {% if featured %}
       <div class="hero-inner">
         <div class="hero-img">
+          {% if featured.cover_image %}
           <img
-            src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=800&q=80"
-            alt="Productive workspace setup"
+            src="{{ featured.cover_image.url }}"
+            alt="{{ featured.title }}"
           />
+          {% else %}
+          <img
+            src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=800"
+            alt="cover"
+          />
+          {% endif %}
         </div>
         <div class="hero-content">
           <span class="badge">Featured</span>
-          <h1 class="hero-title" onclick="location.href = '../post_detail/'">
-            The Art of Productive Workspaces: How Environment Shapes Creativity
-          </h1>
-          <p class="hero-excerpt">
-            Your workspace isn't just where you work—it's a tool for creativity.
-            Discover how to design an environment that inspires your best work.
-          </p>
+          <h1 class="hero-title">{{ featured.title }}</h1>
+          <p class="hero-excerpt">{{ featured.excerpt }}</p>
           <div class="author-row">
             <div class="avatar av-marcus"></div>
             <div>
-              <div class="author-name">Marcus Whitfield</div>
+              <div class="author-name">{{ featured.author.username }}</div>
               <div class="author-meta">
-                March 28, 2026
+                {{ featured.created_at|date:"F d, Y" }}
                 <span class="dot">·</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <circle cx="12" cy="12" r="10" stroke-width="2" />
-                  <path
-                    stroke-linecap="round"
-                    stroke-width="2"
-                    d="M12 6v6l4 2"
-                  />
-                </svg>
-                8 min read
+                {{ featured.read_time }} min read
               </div>
             </div>
           </div>
         </div>
       </div>
+      {% endif %}
     </section>
 
     <!-- ── DIVIDER ── -->
@@ -115,161 +106,40 @@
       <div class="left-col">
         <h2 class="section-title">Recent Stories</h2>
         <div class="posts-grid">
-          <!-- Card 1 -->
+          {% for post in recent %}
           <article class="post-card">
             <div class="post-card-img">
+              {% if post.cover_image %}
+              <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" />
+              {% else %}
               <img
-                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80"
-                alt="Minimalism"
+                src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600"
+                alt="cover"
               />
+              {% endif %}
             </div>
             <div class="post-card-body">
-              <span class="tag-pill lifestyle">Lifestyle</span>
+              {% if post.category %}
+              <span class="tag-pill">{{ post.category.name }}</span>
+              {% endif %}
               <h3 class="post-card-title">
-                Embracing Minimalism in the Digital Age
+                <a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a>
               </h3>
               <div class="post-card-meta">
-                <div class="avatar av-elena"></div>
-                <span class="meta-author">Elena Rodriguez</span>
+                <div class="avatar"></div>
+                <span class="meta-author">{{ post.author.username }}</span>
                 <span class="dot">·</span>
-                <span class="meta-date">Mar 26</span>
+                <span class="meta-date">{{ post.created_at|date:"M d" }}</span>
                 <span class="dot">·</span>
-                <span class="meta-read">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <circle cx="12" cy="12" r="10" stroke-width="2" />
-                    <path
-                      stroke-linecap="round"
-                      stroke-width="2"
-                      d="M12 6v6l4 2"
-                    />
-                  </svg>
-                  6 min read
-                </span>
+                <span class="meta-read">{{ post.read_time }} min read</span>
               </div>
             </div>
           </article>
-
-          <!-- Card 2 -->
-          <article class="post-card">
-            <div class="post-card-img">
-              <img
-                src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80"
-                alt="Coding"
-              />
-            </div>
-            <div class="post-card-body">
-              <span class="tag-pill tech">Technology</span>
-              <h3 class="post-card-title teal">
-                Building Better Software: Lessons from a Decade of Coding
-              </h3>
-              <div class="post-card-meta">
-                <div class="avatar av-marcus"></div>
-                <span class="meta-author">Marcus Whitfield</span>
-                <span class="dot">·</span>
-                <span class="meta-date">Mar 25</span>
-                <span class="dot">·</span>
-                <span class="meta-read">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <circle cx="12" cy="12" r="10" stroke-width="2" />
-                    <path
-                      stroke-linecap="round"
-                      stroke-width="2"
-                      d="M12 6v6l4 2"
-                    />
-                  </svg>
-                  12 min read
-                </span>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 3 -->
-          <article class="post-card">
-            <div class="post-card-img">
-              <img
-                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80"
-                alt="Slow reading"
-              />
-            </div>
-            <div class="post-card-body">
-              <span class="tag-pill culture">Culture</span>
-              <h3 class="post-card-title">
-                The Joy of Slow Reading in a Fast-Paced World
-              </h3>
-              <div class="post-card-meta">
-                <div class="avatar av-sarah"></div>
-                <span class="meta-author">Sarah Chen</span>
-                <span class="dot">·</span>
-                <span class="meta-date">Mar 24</span>
-                <span class="dot">·</span>
-                <span class="meta-read">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <circle cx="12" cy="12" r="10" stroke-width="2" />
-                    <path
-                      stroke-linecap="round"
-                      stroke-width="2"
-                      d="M12 6v6l4 2"
-                    />
-                  </svg>
-                  5 min read
-                </span>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 4 -->
-          <article class="post-card">
-            <div class="post-card-img">
-              <img
-                src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80"
-                alt="Architecture"
-              />
-            </div>
-            <div class="post-card-body">
-              <span class="tag-pill design">Design</span>
-              <h3 class="post-card-title">
-                Modern Architecture: Where Form Meets Function
-              </h3>
-              <div class="post-card-meta">
-                <div class="avatar av-elena"></div>
-                <span class="meta-author">Elena Rodriguez</span>
-                <span class="dot">·</span>
-                <span class="meta-date">Mar 23</span>
-                <span class="dot">·</span>
-                <span class="meta-read">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <circle cx="12" cy="12" r="10" stroke-width="2" />
-                    <path
-                      stroke-linecap="round"
-                      stroke-width="2"
-                      d="M12 6v6l4 2"
-                    />
-                  </svg>
-                  7 min read
-                </span>
-              </div>
-            </div>
-          </article>
+          {% empty %}
+          <p style="color: #888; grid-column: 1/-1; padding: 40px 0">
+            No posts yet. <a href="/admin">Add one in admin →</a>
+          </p>
+          {% endfor %}
         </div>
       </div>
 
@@ -294,71 +164,22 @@
             <span>Trending</span>
           </div>
           <div class="trending-list">
+            {% for post in trending %}
             <div class="trending-item">
-              <span class="trend-num">01</span>
+              <span class="trend-num">0{{ forloop.counter }}</span>
               <div class="trend-body">
                 <div class="trend-author-row">
-                  <div class="avatar av-marcus"></div>
-                  <span class="trend-author-name">Marcus Whitfield</span>
+                  <div class="avatar"></div>
+                  <span class="trend-author-name"
+                    >{{ post.author.username }}</span
+                  >
                 </div>
-                <p class="trend-title">
-                  The Art of Productive Workspaces: How Environment Shapes
-                  Creativity
-                </p>
+                <a href="{% url 'post_detail' post.slug %}">
+                  <p class="trend-title">{{ post.title }}</p>
+                </a>
               </div>
             </div>
-
-            <div class="trending-item">
-              <span class="trend-num">02</span>
-              <div class="trend-body">
-                <div class="trend-author-row">
-                  <div class="avatar av-elena"></div>
-                  <span class="trend-author-name">Elena Rodriguez</span>
-                </div>
-                <p class="trend-title">
-                  Embracing Minimalism in the Digital Age
-                </p>
-              </div>
-            </div>
-
-            <div class="trending-item">
-              <span class="trend-num">03</span>
-              <div class="trend-body">
-                <div class="trend-author-row">
-                  <div class="avatar av-marcus"></div>
-                  <span class="trend-author-name">Marcus Whitfield</span>
-                </div>
-                <p class="trend-title teal">
-                  Building Better Software: Lessons from a Decade of Coding
-                </p>
-              </div>
-            </div>
-
-            <div class="trending-item">
-              <span class="trend-num">04</span>
-              <div class="trend-body">
-                <div class="trend-author-row">
-                  <div class="avatar av-sarah"></div>
-                  <span class="trend-author-name">Sarah Chen</span>
-                </div>
-                <p class="trend-title">
-                  The Joy of Slow Reading in a Fast-Paced World
-                </p>
-              </div>
-            </div>
-
-            <div class="trending-item">
-              <span class="trend-num">05</span>
-              <div class="trend-body">
-                <div class="trend-author-row">
-                  <div class="avatar av-elena"></div>
-                  <span class="trend-author-name">Elena Rodriguez</span>
-                </div>
-                <p class="trend-title">
-                  Modern Architecture: Where Form Meets Function
-                </p>
-              </div>
-            </div>
+            {% endfor %}
           </div>
         </div>
 
@@ -366,14 +187,9 @@
         <div class="sidebar-card">
           <p class="tags-title">Popular Tags</p>
           <div class="tags-cloud">
-            <span class="tag-badge">productivity</span>
-            <span class="tag-badge">design</span>
-            <span class="tag-badge">technology</span>
-            <span class="tag-badge">wellness</span>
-            <span class="tag-badge">creativity</span>
-            <span class="tag-badge">business</span>
-            <span class="tag-badge">minimalism</span>
-            <span class="tag-badge">coding</span>
+            {% for tag in tags %}
+            <span class="tag-badge">{{ tag.name }}</span>
+            {% endfor %}
           </div>
         </div>
       </aside>

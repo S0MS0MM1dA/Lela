@@ -250,6 +250,8 @@ nav {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   align-items: center;
+  display: block;
+  height: auto;
 }
 .nav-item {
   display: flex;

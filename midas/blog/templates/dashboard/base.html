@@ -1,0 +1,234 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Dashboard{% endblock %} — Inkwell</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'blog/css/dashboard.css' %}" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav>
+      <div class="nav-inner">
+        <a class="nav-logo" href="{% url 'home' %}">Inkwell</a>
+        <div class="nav-links">
+          <a href="{% url 'home' %}">Explore</a>
+          <a href="#">Tags</a>
+        </div>
+        <div class="nav-search">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+            />
+          </svg>
+          <input type="text" placeholder="Search..." />
+        </div>
+        <div class="nav-right">
+          <a href="{% url 'signout' %}" class="btn-signin">Sign out</a>
+          <a class="btn-write" href="{% url 'post_create' %}">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Write
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- PAGE -->
+    <div class="page">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="profile-block">
+          <div class="avatar-wrap">
+            {% if request.user.avatar %}
+            <img
+              src="{{ request.user.avatar.url }}"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+              "
+              alt="{{ request.user.username }}"
+            />
+            {% else %} {{ request.user.username|first|upper }} {% endif %}
+          </div>
+          <div class="profile-name">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </div>
+          <div class="profile-handle">@{{ request.user.username }}</div>
+          <div class="stats-row">
+            <div class="stat">
+              <span class="stat-num">{{ request.user.posts.count }}</span>
+              <span class="stat-label">Posts</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">{{ request.user.follower_count }}</span>
+              <span class="stat-label">Followers</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">{{ request.user.following_count }}</span>
+              <span class="stat-label">Following</span>
+            </div>
+          </div>
+        </div>
+
+        <nav class="nav-menu">
+          <a
+            href="{% url 'dashboard' %}"
+            class="nav-item {% if active_tab == 'my_posts' %}active{% endif %}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            My Posts
+          </a>
+
+          <a
+            href="{% url 'dashboard_drafts' %}"
+            class="nav-item {% if active_tab == 'drafts' %}active{% endif %}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+              />
+            </svg>
+            Drafts {% if drafts_count %}
+            <span class="badge">{{ drafts_count }}</span>
+            {% endif %}
+          </a>
+
+          <a
+            href="{% url 'dashboard_bookmarks' %}"
+            class="nav-item {% if active_tab == 'bookmarks' %}active{% endif %}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+              />
+            </svg>
+            Bookmarks
+          </a>
+
+          <a
+            href="{% url 'dashboard_settings' %}"
+            class="nav-item {% if active_tab == 'settings' %}active{% endif %}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            Settings
+          </a>
+        </nav>
+      </aside>
+
+      <!-- MAIN CONTENT — each page fills this -->
+      <main class="main-panel">
+        {% if messages %} {% for message in messages %}
+        <div class="msg-banner {{ message.tags }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% block content %}{% endblock %}
+      </main>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast"></div>
+
+    <script>
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2800);
+      }
+
+      async function deletePost(slug) {
+        if (!confirm("Delete this post? This cannot be undone.")) return;
+        const row = document.getElementById("row-" + slug);
+        const res = await fetch(`/dashboard/delete/${slug}/`, {
+          method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+        });
+        const data = await res.json();
+        if (data.success) {
+          row.style.opacity = "0";
+          row.style.transition = "opacity .3s";
+          setTimeout(() => row.remove(), 300);
+          showToast("Post deleted.");
+        }
+      }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

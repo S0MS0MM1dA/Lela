@@ -1,0 +1,86 @@
+<!-- prettier-ignore -->
+{% extends 'dashboard/base.html' %} 
+{% block title %}
+Bookmarks
+{% endblock %} 
+{%block content %}
+<div class="panel-header">
+  <h1 class="panel-title">Bookmarks</h1>
+</div>
+
+{% if bookmarks %}
+<div class="bookmarks-grid">
+  {% for bookmark in bookmarks %}
+  <div class="bookmark-card" id="bm-{{ bookmark.id }}">
+    <div class="bookmark-thumb">
+      {% if bookmark.post.cover_image %}
+      <img src="{{ bookmark.post.cover_image.url }}" alt="" />
+      {% endif %}
+    </div>
+    <div class="bookmark-info">
+      <a
+        href="{% url 'post_detail' bookmark.post.slug %}"
+        class="bookmark-title"
+      >
+        {{ bookmark.post.title }}
+      </a>
+      <div class="bookmark-meta">
+        {{ bookmark.post.author.username }} · {{
+        bookmark.post.created_at|date:"M d" }} · {{ bookmark.post.read_time }}
+        min read
+      </div>
+    </div>
+    <button
+      class="bookmark-rm"
+      onclick="removeBookmark({{ bookmark.id }})"
+      title="Remove"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.5"
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.5"
+      d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+    />
+  </svg>
+  <p>No bookmarks yet</p>
+  <a href="{% url 'home' %}">Explore stories to bookmark →</a>
+</div>
+<!-- prettier-ignore -->
+{% endif %}
+{% endblock %} 
+{% block extra_js %}
+<script>
+  async function removeBookmark(id) {
+    const card = document.getElementById("bm-" + id);
+    card.style.opacity = "0";
+    card.style.transition = "opacity .3s";
+    setTimeout(() => card.remove(), 300);
+    showToast("Bookmark removed.");
+  }
+</script>
+{% endblock %}

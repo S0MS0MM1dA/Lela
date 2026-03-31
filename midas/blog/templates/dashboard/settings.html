@@ -1,0 +1,154 @@
+<!-- prettier-ignore -->
+{% extends 'dashboard/base.html' %} 
+{% block title %}
+Settings{% endblock %} 
+{%block content %}
+<div class="panel-header">
+  <h1 class="panel-title">Settings</h1>
+</div>
+
+<!-- Profile Information -->
+<div class="settings-card">
+  <h2 class="settings-section-title">Profile Information</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="update_profile" />
+
+    <div class="avatar-upload">
+      <div class="avatar-wrap">
+        {% if request.user.avatar %}
+        <img
+          src="{{ request.user.avatar.url }}"
+          style="
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+          "
+          alt=""
+        />
+        {% else %} {{ request.user.username|first|upper }} {% endif %}
+      </div>
+      <div>
+        <label class="upload-btn" style="cursor: pointer">
+          Change photo
+          <input
+            type="file"
+            name="avatar"
+            accept="image/*"
+            style="display: none"
+            onchange="this.closest('form').submit()"
+          />
+        </label>
+        <p style="font-size: 12px; color: var(--text-3); margin-top: 6px">
+          JPG or PNG, max 2MB
+        </p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input
+        class="form-input"
+        type="text"
+        name="name"
+        value="{{ request.user.get_full_name|default:request.user.username }}"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input
+        class="form-input"
+        type="text"
+        value="{{ request.user.username }}"
+        disabled
+        style="opacity: 0.6; cursor: not-allowed"
+      />
+      <p style="font-size: 12px; color: var(--text-3); margin-top: 4px">
+        Username cannot be changed.
+      </p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bio</label>
+      <textarea class="form-input" name="bio">{{ request.user.bio }}</textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Website</label>
+      <input
+        class="form-input"
+        type="url"
+        name="website"
+        placeholder="https://yoursite.com"
+        value="{{ request.user.website }}"
+      />
+    </div>
+    <div class="form-footer">
+      <button class="btn-save" type="submit">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<!-- Change Password -->
+<div class="settings-card">
+  <h2 class="settings-section-title">Change Password</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="change_password" />
+    <div class="form-group">
+      <label class="form-label">Current password</label>
+      <input
+        class="form-input"
+        type="password"
+        name="old_password"
+        placeholder="Enter current password"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-label">New password</label>
+      <input
+        class="form-input"
+        type="password"
+        name="new_password1"
+        placeholder="At least 8 characters"
+        oninput="checkStrength(this.value)"
+      />
+      <div class="strength-bar">
+        <div class="strength-fill" id="strength-fill"></div>
+      </div>
+      <p class="password-hint" id="strength-label"></p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirm new password</label>
+      <input
+        class="form-input"
+        type="password"
+        name="new_password2"
+        placeholder="Re-enter new password"
+      />
+    </div>
+    <div class="form-footer">
+      <button class="btn-save" type="submit">Update Password</button>
+    </div>
+  </form>
+</div>
+<!-- prettier-ignore -->
+{% endblock %} 
+{% block extra_js %}
+<script>
+  function checkStrength(val) {
+    const fill = document.getElementById("strength-fill");
+    const label = document.getElementById("strength-label");
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const colors = ["", "#e74c3c", "#e67e22", "#f1c40f", "#27ae60"];
+    const labels = ["", "Weak", "Fair", "Good", "Strong"];
+    fill.style.width = score * 25 + "%";
+    fill.style.background = colors[score] || "#ddd";
+    label.textContent = val.length ? labels[score] : "";
+    label.style.color = colors[score] || "var(--text-3)";
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+<!-- prettier-ignore -->
+{% extends 'dashboard/base.html' %}  
+{% block title %}
+ Drafts 
+{% endblock %}
+{%block content %}
+<div class="panel-header">
+  <h1 class="panel-title">Drafts</h1>
+  <a class="btn-new-post" href="{% url 'post_create' %}">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+      />
+    </svg>
+    New Post
+  </a>
+</div>
+
+<div class="table-wrap">
+  <div class="table-head drafts-cols">
+    <span>Post</span><span>Status</span><span>Last Edited</span
+    ><span>Actions</span>
+  </div>
+
+  {% for draft in drafts %}
+  <div class="table-row drafts-cols" id="row-{{ draft.slug }}">
+    <div class="draft-cell">
+      <div class="draft-title">{{ draft.title }}</div>
+      <div class="draft-excerpt">
+        {{ draft.excerpt|default:"No excerpt yet..." }}
+      </div>
+    </div>
+    <div><span class="status-badge status-draft">Draft</span></div>
+    <div style="font-size: 14px; color: var(--text-2)">
+      {{ draft.updated_at|date:"M d, Y" }}
+    </div>
+    <div class="actions-cell">
+      <a
+        class="action-icon"
+        href="{% url 'post_edit' draft.slug %}"
+        title="Edit"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+          />
+        </svg>
+      </a>
+      <button
+        class="action-icon del"
+        onclick="deletePost('{{ draft.slug }}')"
+        title="Delete"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+  {% empty %}
+  <div style="padding: 60px; text-align: center; color: var(--text-3)">
+    No drafts yet.
+    <a
+      href="{% url 'post_create' %}"
+      style="color: var(--teal); margin-left: 6px"
+      >Start writing →</a
+    >
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

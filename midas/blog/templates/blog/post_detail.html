@@ -5,7 +5,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Embracing Minimalism in the Digital Age — Lela</title>
+    <title>{{ post.title }} — Lela</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -21,7 +21,7 @@
     <!-- ── NAVBAR ── -->
     <nav>
       <div class="nav-inner">
-        <a class="nav-logo" href="home.html">Lela</a>
+        <a class="nav-logo" href="{% url 'home' %}">Lela</a>
         <div class="nav-links">
           <a href="#">Explore</a>
           <a href="#">Tags</a>
@@ -43,8 +43,8 @@
           <input type="text" placeholder="Search..." />
         </div>
         <div class="nav-right">
-          <a class="btn-signin" href="#">Sign In</a>
-          <a class="btn-write" href="#">
+          <a class="btn-signin" href="{% url 'signin' %}">Sign In</a>
+          <a class="btn-write" href="{% url 'post_create' %}">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -140,167 +140,66 @@
 
     <!-- ── COVER IMAGE ── -->
     <div class="cover-wrap">
+      {% if post.cover_image %}
+      <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" />
+      {% else %}
       <img
-        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&q=85"
-        alt="Minimalist home setup"
+        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400"
+        alt="cover"
       />
+      {% endif %}
     </div>
 
     <!-- ── ARTICLE ── -->
     <article class="article-outer" id="article">
       <!-- Title -->
-      <h1 class="post-title">Embracing Minimalism in the Digital Age</h1>
+      <h1 class="post-title">{{ post.title }}</h1>
 
       <!-- Author bar -->
       <div class="author-bar">
         <div class="author-left">
-          <div class="avatar av-elena"></div>
+          <div class="avatar av-elena">
+            {% if post.author.avatar %}
+            <img
+              src="{{ post.author.avatar.url }}"
+              alt="{{ post.author.username }}"
+            />
+            {% endif %}
+          </div>
           <div>
-            <div class="author-name">Elena Rodriguez</div>
+            <div class="author-name">{{ post.author.username }}</div>
             <div class="author-meta">
-              March 26, 2026
+              {{ post.created_at|date:"F d, Y" }}
               <span class="dot">·</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <circle cx="12" cy="12" r="10" stroke-width="2" />
-                <path stroke-linecap="round" stroke-width="2" d="M12 6v6l4 2" />
-              </svg>
-              6 min read
+              {{ post.read_time }} min read
             </div>
           </div>
         </div>
-        <button class="btn-follow">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-            />
-          </svg>
-          Follow
-        </button>
+        {% if request.user.is_authenticated and request.user != post.author %}
+        <button class="btn-follow">Follow</button>
+        {% endif %}
       </div>
 
       <!-- Body -->
-      <div class="post-body">
-        <h2>Digital Minimalism</h2>
-
-        <p>
-          The digital age has brought unprecedented connectivity, but also
-          overwhelming complexity. Digital minimalism is about being intentional
-          with technology, not abandoning it.
-        </p>
-
-        <p>
-          Start by auditing your digital life. Which apps truly add value? Which
-          ones are just noise? Be ruthless in your evaluation.
-        </p>
-
-        <blockquote>
-          "The ability to simplify means to eliminate the unnecessary so that
-          the necessary may speak." — Hans Hofmann
-        </blockquote>
-
-        <h2>The Benefits</h2>
-
-        <p>
-          When you reduce digital clutter, you'll find yourself with more time,
-          better focus, and reduced anxiety. It's not about deprivation—it's
-          about making room for what matters.
-        </p>
-
-        <p>
-          Research consistently shows that constant notifications fragment
-          attention and raise cortisol levels. By pruning your digital
-          environment, you're not just decluttering a phone screen—you're
-          reclaiming your cognitive bandwidth.
-        </p>
-
-        <figure class="post-img">
-          <img
-            src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1000&q=80"
-            alt="Clean desk with notebook and coffee"
-          />
-          <figcaption>
-            A clean workspace promotes clarity of thought.
-          </figcaption>
-        </figure>
-
-        <h2>Where to Start</h2>
-
-        <p>
-          The process doesn't have to be overwhelming. Think of it as three
-          distinct layers:
-        </p>
-
-        <ul>
-          <li>
-            <strong>Devices</strong> — Remove every app you haven't opened in 30
-            days. No exceptions.
-          </li>
-          <li>
-            <strong>Notifications</strong> — Allow only calls and calendar
-            alerts. Everything else is on-demand.
-          </li>
-          <li>
-            <strong>Subscriptions</strong> — Audit your email list. Unsubscribe
-            from anything you skim without reading.
-          </li>
-        </ul>
-
-        <h3>The one-week experiment</h3>
-
-        <p>
-          Try a single week of intentional digital use. Keep a small notebook
-          and write down every time you reach for your phone out of habit rather
-          than need. The results are often surprising—and sometimes unsettling.
-        </p>
-
-        <p>
-          After the week, you'll have a clear picture of where your attention
-          actually goes, versus where you <em>think</em> it goes. That gap is
-          where the work begins.
-        </p>
-
-        <h2>Building New Habits</h2>
-
-        <p>
-          Minimalism isn't a one-time event—it's an ongoing practice. Schedule
-          quarterly reviews of your digital tools. Ask yourself: is this still
-          serving me? Does this align with where I want to go?
-        </p>
-
-        <p>
-          The goal isn't a perfectly empty phone. The goal is a phone—and a
-          digital life—that feels like it belongs to you, not the other way
-          around.
-        </p>
-      </div>
+      <div class="post-body">{{ post.body|safe }}</div>
 
       <!-- Tags -->
       <div class="tags-row">
-        <span class="tag-badge">minimalism</span>
-        <span class="tag-badge">technology</span>
-        <span class="tag-badge">digital-wellness</span>
+        {% for tag in post.tags.all %}
+        <span class="tag-badge">{{ tag.name }}</span>
+        {% endfor %}
       </div>
 
       <!-- Actions bar -->
       <div class="actions-bar">
         <div class="actions-left">
-          <button class="action-btn" id="like-btn" onclick="toggleLike()">
+          <button
+            class="action-btn {% if user_liked %}liked{% endif %}"
+            id="like-btn"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              fill="none"
+              fill="{% if user_liked %}currentColor{% else %}none{% endif %}"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
@@ -311,12 +210,9 @@
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-            <span id="like-count">567</span>
+            <span id="like-count">{{ post.like_count }}</span>
           </button>
-          <button
-            class="action-btn"
-            onclick="document.querySelector('.comment-form textarea').focus()"
-          >
+          <button class="action-btn">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -330,18 +226,16 @@
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            0
+            {{ post.comment_count }}
           </button>
         </div>
         <div class="actions-right">
           <button
-            class="icon-btn"
-            onclick="toggleBookmark(this)"
-            title="Bookmark"
+            class="icon-btn {% if user_bookmarked %}bookmarked{% endif %}"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              fill="none"
+              fill="{% if user_bookmarked %}currentColor{% else %}none{% endif %}"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
@@ -353,21 +247,6 @@
               />
             </svg>
           </button>
-          <button class="icon-btn" onclick="sharePost()" title="Share">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-              />
-            </svg>
-          </button>
         </div>
       </div>
 
@@ -376,34 +255,76 @@
         <div
           class="avatar av-elena"
           style="width: 56px; height: 56px; border-radius: 50%"
-        ></div>
+        >
+          {% if post.author.avatar %}
+          <img
+            src="{{ post.author.avatar.url }}"
+            alt="{{ post.author.username }}"
+          />
+          {% endif %}
+        </div>
         <div class="bio-content">
-          <div class="bio-name">Elena Rodriguez</div>
-          <p class="bio-text">
-            Product designer with a passion for beautiful interfaces and
-            meaningful experiences.
-          </p>
+          <div class="bio-name">{{ post.author.username }}</div>
+          <p class="bio-text">{{ post.author.bio }}</p>
           <div class="bio-stats">
-            <span>2,341 followers</span>
+            <span>{{ post.author.follower_count }} followers</span>
             <span class="dot">·</span>
-            <span>478 following</span>
+            <span>{{ post.author.following_count }} following</span>
           </div>
         </div>
+        {% if request.user.is_authenticated and request.user != post.author %}
         <button class="bio-follow">Follow</button>
+        {% endif %}
       </div>
 
       <!-- Comments -->
       <div class="comments-section">
-        <h2 class="comments-title">Comments (0)</h2>
-        <div class="comment-form">
-          <textarea placeholder="Share your thoughts..."></textarea>
-          <div class="comment-form-footer">
-            <button class="btn-post-comment">Post Comment</button>
-          </div>
-        </div>
+        <h2 class="comments-title">
+          Comments (<span id="comment-count">{{ post.comment_count }}</span>)
+        </h2>
 
-        <!-- Example comment (will be dynamic in Django) -->
-        <div class="comment-list">
+        {% if request.user.is_authenticated %}
+        <div class="comment-form">
+          <form id="comment-form" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="comment" />
+            <textarea
+              id="comment-body"
+              name="body"
+              class="comment-form textarea"
+              placeholder="Share your thoughts..."
+            ></textarea>
+            <div class="comment-form-footer">
+              <button
+                type="submit"
+                class="btn-post-comment"
+                id="comment-submit"
+              >
+                Post Comment
+              </button>
+            </div>
+          </form>
+          <p
+            id="comment-error"
+            style="
+              color: #e74c3c;
+              font-size: 13px;
+              margin-top: 8px;
+              display: none;
+            "
+          >
+            Please write something before posting.
+          </p>
+        </div>
+        {% else %}
+        <p style="font-size: 14px; color: var(--text-3); margin-bottom: 24px">
+          <a href="{% url 'signin' %}" style="color: var(--teal)">Sign in</a> to
+          leave a comment.
+        </p>
+        {% endif %}
+
+        <div class="comment-list" id="comment-list">
+          {% for comment in comments %}
           <div class="comment-item">
             <div
               class="avatar"
@@ -417,41 +338,45 @@
               "
             ></div>
             <div>
-              <span class="comment-author">Sarah Chen</span>
-              <span class="comment-date">Mar 27</span>
-              <p class="comment-text">
-                This resonates so deeply. I deleted half my apps last month and
-                the mental clarity has been remarkable. Thanks for articulating
-                it so well.
-              </p>
-              <button class="comment-reply">↩ Reply</button>
-
+              <span class="comment-author">{{ comment.author.username }}</span>
+              <span class="comment-date"
+                >{{ comment.created_at|date:"M d" }}</span
+              >
+              <p class="comment-text">{{ comment.body }}</p>
+              {% for reply in comment.replies.all %}
               <div class="replies">
                 <div class="reply-item">
                   <div
-                    class="avatar av-elena"
+                    class="avatar"
                     style="
                       width: 28px;
                       height: 28px;
                       border-radius: 50%;
-                      flex-shrink: 0;
                       background: #c8b89a;
+                      flex-shrink: 0;
                     "
                   ></div>
                   <div>
                     <span class="comment-author" style="font-size: 13px"
-                      >Elena Rodriguez</span
+                      >{{ reply.author.username }}</span
                     >
-                    <span class="comment-date">Mar 27</span>
+                    <span class="comment-date"
+                      >{{ reply.created_at|date:"M d" }}</span
+                    >
                     <p class="comment-text" style="font-size: 14px">
-                      Thank you Sarah! That first week is the hardest, but so
-                      worth it.
+                      {{ reply.body }}
                     </p>
                   </div>
                 </div>
               </div>
+              {% endfor %}
             </div>
           </div>
+          {% empty %}
+          <p style="color: var(--text-3); font-size: 14px">
+            No comments yet. Be the first!
+          </p>
+          {% endfor %}
         </div>
       </div>
     </article>
@@ -460,56 +385,32 @@
     <section class="related-section">
       <h2 class="related-title">Related Stories</h2>
       <div class="related-grid">
-        <a class="related-card" href="#">
+        {% for related_post in related %}
+        <a
+          class="related-card"
+          href="{% url 'post_detail' related_post.slug %}"
+        >
           <div class="related-card-img">
+            {% if related_post.cover_image %}
             <img
-              src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80"
-              alt="Workspace"
+              src="{{ related_post.cover_image.url }}"
+              alt="{{ related_post.title }}"
             />
+            {% else %}
+            <img
+              src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600"
+              alt="cover"
+            />
+            {% endif %}
           </div>
-          <h3 class="related-card-title">
-            The Art of Productive Workspaces: How...
-          </h3>
+          <h3 class="related-card-title">{{ related_post.title }}</h3>
           <div class="related-card-meta">
-            <span>Marcus Whitfield</span>
+            <span>{{ related_post.author.username }}</span>
             <span class="dot">·</span>
-            <span>8 min</span>
+            <span>{{ related_post.read_time }} min</span>
           </div>
         </a>
-
-        <a class="related-card" href="#">
-          <div class="related-card-img">
-            <img
-              src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80"
-              alt="Coding"
-            />
-          </div>
-          <h3 class="related-card-title">
-            Building Better Software: Lessons from a Decade of...
-          </h3>
-          <div class="related-card-meta">
-            <span>Marcus Whitfield</span>
-            <span class="dot">·</span>
-            <span>12 min</span>
-          </div>
-        </a>
-
-        <a class="related-card" href="#">
-          <div class="related-card-img">
-            <img
-              src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80"
-              alt="Reading"
-            />
-          </div>
-          <h3 class="related-card-title teal">
-            The Joy of Slow Reading in a Fast-Paced World
-          </h3>
-          <div class="related-card-meta">
-            <span>Sarah Chen</span>
-            <span class="dot">·</span>
-            <span>5 min</span>
-          </div>
-        </a>
+        {% endfor %}
       </div>
     </section>
 
@@ -584,6 +485,81 @@
           btn.style.color = following ? "#fff" : "var(--teal)";
           btn.style.border = following ? "none" : "1px solid var(--teal)";
         });
+      });
+
+      // AJAX Comment Section
+      const form = document.getElementById("comment-form");
+      const body = document.getElementById("comment-body");
+      const list = document.getElementById("comment-list");
+      const count = document.getElementById("comment-count");
+      const error = document.getElementById("comment-error");
+      const submit = document.getElementById("comment-submit");
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault(); // stop full page reload
+
+        // Client-side validation
+        if (!body.value.trim()) {
+          error.style.display = "block";
+          return;
+        }
+        error.style.display = "none";
+
+        // Disable button while sending
+        submit.disabled = true;
+        submit.textContent = "Posting...";
+
+        // Build form data
+        const data = new FormData(form);
+
+        try {
+          const response = await fetch(window.location.href, {
+            method: "POST",
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            body: data,
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Remove "no comments" empty state if present
+            const empty = list.querySelector("p");
+            if (empty) empty.remove();
+
+            // Build new comment HTML and inject at top of list
+            const newComment = document.createElement("div");
+            newComment.className = "comment-item";
+            newComment.style.opacity = "0";
+            newComment.style.transform = "translateY(-8px)";
+            newComment.style.transition = "opacity .3s, transform .3s";
+            newComment.innerHTML = `
+          <div class="avatar" style="background:#B8C9D8;width:36px;height:36px;border-radius:50%;flex-shrink:0;margin-top:2px;"></div>
+          <div>
+            <span class="comment-author">${result.username}</span>
+            <span class="comment-date">${result.date}</span>
+            <p class="comment-text">${result.body}</p>
+          </div>
+        `;
+            list.prepend(newComment);
+
+            // Animate in
+            requestAnimationFrame(() => {
+              newComment.style.opacity = "1";
+              newComment.style.transform = "translateY(0)";
+            });
+
+            // Update comment count
+            count.textContent = parseInt(count.textContent) + 1;
+
+            // Clear textarea
+            body.value = "";
+          }
+        } catch (err) {
+          console.error("Comment failed:", err);
+        } finally {
+          submit.disabled = false;
+          submit.textContent = "Post Comment";
+        }
       });
     </script>
   </body>
