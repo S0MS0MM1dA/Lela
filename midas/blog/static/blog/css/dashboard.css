@@ -829,3 +829,21 @@ textarea.form-input {
     font-size: 26px;
   }
 }
+
+/* Message banner (for success/error messages in settings) */
+.msg-banner {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.msg-banner.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+.msg-banner.error {
+  background: #fdecea;
+  color: #e74c3c;
+  border: 1px solid #f5c6c6;
+}

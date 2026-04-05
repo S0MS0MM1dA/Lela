@@ -1,213 +1,205 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search — Lela</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap"
-      rel="stylesheet"
+{% extends 'base.html' %} {% load static %} {% block title %} {% if query%}
+Search: {{ query }}{% else %}Search{% endif %} — Inkwell {% endblock %} {%block
+extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/base.css' %}" />
+<link rel="stylesheet" href="{% static 'blog/css/home.css' %}" />
+<style>
+  .search-page {
+    max-width: 860px;
+    margin: 48px auto 80px;
+    padding: 0 32px;
+  }
+  .search-heading {
+    font-family: "Lora", serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #111110;
+  }
+  .search-count {
+    font-size: 14px;
+    color: #8a8a84;
+    margin-bottom: 36px;
+  }
+  .result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .result-card {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #e2e1dc;
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+  .result-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    transform: translateY(-1px);
+  }
+  .result-thumb {
+    width: 96px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #eee;
+  }
+  .result-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .result-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .result-cat {
+    font-size: 11px;
+    font-weight: 500;
+    background: #e8f5f0;
+    color: #0d7377;
+    padding: 2px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .result-title {
+    font-family: "Lora", serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111110;
+    line-height: 1.35;
+    margin-bottom: 6px;
+  }
+  .result-excerpt {
+    font-size: 13px;
+    color: #4a4a46;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .result-meta {
+    font-size: 12px;
+    color: #8a8a84;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 80px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .empty-state img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    opacity: 0.5;
+    display: block;
+    margin: 0 auto;
+  }
+  .empty-title {
+    font-family: "Lora", serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #111110;
+  }
+  .empty-sub {
+    font-size: 15px;
+    color: #8a8a84;
+  }
+  .empty-sub a {
+    color: #0d7377;
+  }
+
+  /* No query state */
+  .no-query {
+    text-align: center;
+    padding: 80px 0;
+  }
+  .no-query p {
+    font-size: 18px;
+    color: #8a8a84;
+  }
+</style>
+{% endblock %} {% block search_value %}{{ query }}{% endblock %} {% block
+content %}
+<div class="search-page">
+  {% if query %}
+  <h1 class="search-heading">Results for "{{ query }}"</h1>
+  <p class="search-count">
+    {{ results.count }} post{{ results.count|pluralize }} found
+  </p>
+
+  {% if results %}
+  <div class="result-list">
+    {% for post in results %}
+    <a class="result-card" href="{% url 'post_detail' post.slug %}">
+      <div class="result-thumb">
+        {% if post.cover_image %}
+        <img src="{{ post.cover_image.url }}" alt="" />
+        {% else %}
+        <img
+          src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=200"
+          alt=""
+        />
+        {% endif %}
+      </div>
+      <div class="result-body">
+        {% if post.category %}
+        <span class="result-cat">{{ post.category.name }}</span>
+        {% endif %}
+        <h2 class="result-title">{{ post.title }}</h2>
+        <p class="result-excerpt">
+          {{ post.excerpt|default:post.body|striptags|truncatechars:140 }}
+        </p>
+        <div class="result-meta">
+          <span>{{ post.author.username }}</span>
+          <span>·</span>
+          <span>{{ post.created_at|date:"M d, Y" }}</span>
+          <span>·</span>
+          <span>{{ post.read_time }} min read</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- NO RESULTS STATE -->
+  <div class="empty-state">
+    <img
+      src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&q=60"
+      alt="No results"
     />
-    <link rel="stylesheet" href="{% static 'blog/css/home.css' %}" />
-  </head>
-  <body>
-    <nav>
-      <div class="nav-inner">
-        <a class="nav-logo" href="{% url 'home' %}">Lela</a>
-        <div class="nav-links">
-          <a href="{% url 'home' %}">Explore</a>
-          <a href="#">Tags</a>
-        </div>
-        <div class="nav-search">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-            />
-          </svg>
-          <form method="GET" action="{% url 'search' %}" style="width: 100%">
-            <input
-              type="text"
-              name="q"
-              placeholder="Search..."
-              value="{{ query }}"
-              autofocus
-            />
-          </form>
-        </div>
-        <div class="nav-right">
-          {% if request.user.is_authenticated %}
-          <a href="{% url 'dashboard' %}" class="btn-signin"
-            >{{ request.user.username }}</a
-          >
-          <a href="{% url 'signout' %}" class="btn-signin">Sign out</a>
-          {% else %}
-          <a class="btn-signin" href="{% url 'signin' %}">Sign In</a>
-          {% endif %}
-          <a class="btn-write" href="{% url 'post_create' %}">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-            Write
-          </a>
-        </div>
-      </div>
-    </nav>
-
-    <div style="max-width: 860px; margin: 48px auto; padding: 0 32px">
-      {% if query %}
-      <h1
-        style="
-          font-family: &quot;Lora&quot;, serif;
-          font-size: 28px;
-          font-weight: 600;
-          margin-bottom: 6px;
-        "
-      >
-        Results for "{{ query }}"
-      </h1>
-      <p style="font-size: 14px; color: #8a8a84; margin-bottom: 36px">
-        {{ results.count }} post{{ results.count|pluralize }} found
-      </p>
-
-      {% if results %}
-      <div style="display: flex; flex-direction: column; gap: 24px">
-        {% for post in results %}
-        <a
-          href="{% url 'post_detail' post.slug %}"
-          style="
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            background: #fff;
-            border: 1px solid #e2e1dc;
-            border-radius: 12px;
-            padding: 20px;
-            text-decoration: none;
-            transition: box-shadow 0.2s;
-          "
-          onmouseover="this.style.boxShadow = '0 4px 16px rgba(0,0,0,.07)'"
-          onmouseout="this.style.boxShadow = 'none'"
-        >
-          <div
-            style="
-              width: 96px;
-              height: 72px;
-              border-radius: 8px;
-              overflow: hidden;
-              flex-shrink: 0;
-              background: #eee;
-            "
-          >
-            {% if post.cover_image %}
-            <img
-              src="{{ post.cover_image.url }}"
-              style="width: 100%; height: 100%; object-fit: cover"
-              alt=""
-            />
-            {% else %}
-            <img
-              src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=200"
-              style="width: 100%; height: 100%; object-fit: cover"
-              alt=""
-            />
-            {% endif %}
-          </div>
-
-          <div style="flex: 1; min-width: 0">
-            {% if post.category %}
-            <span
-              style="
-                font-size: 11px;
-                font-weight: 500;
-                background: #e8f5f0;
-                color: #0d7377;
-                padding: 2px 10px;
-                border-radius: 20px;
-                display: inline-block;
-                margin-bottom: 8px;
-              "
-            >
-              {{ post.category.name }}
-            </span>
-            {% endif %}
-            <h2
-              style="
-                font-family: &quot;Lora&quot;, serif;
-                font-size: 18px;
-                font-weight: 600;
-                color: #111110;
-                line-height: 1.35;
-                margin-bottom: 6px;
-              "
-            >
-              {{ post.title }}
-            </h2>
-            <p
-              style="
-                font-size: 13px;
-                color: #4a4a46;
-                line-height: 1.5;
-                margin-bottom: 10px;
-              "
-            >
-              {{ post.excerpt|default:post.body|striptags|truncatechars:120 }}
-            </p>
-            <div
-              style="
-                font-size: 12px;
-                color: #8a8a84;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-              "
-            >
-              <span>{{ post.author.username }}</span>
-              <span>·</span>
-              <span>{{ post.created_at|date:"M d, Y" }}</span>
-              <span>·</span>
-              <span>{{ post.read_time }} min read</span>
-            </div>
-          </div>
-        </a>
-        {% endfor %}
-      </div>
-
-      {% else %}
-      <div style="text-align: center; padding: 80px 0; color: #8a8a84">
-        <p style="font-size: 18px; margin-bottom: 12px">
-          No results found for "{{ query }}"
-        </p>
-        <p style="font-size: 14px">
-          Try different keywords or
-          <a href="{% url 'home' %}" style="color: #0d7377">browse all posts</a
-          >.
-        </p>
-      </div>
-      {% endif %} {% else %}
-      <div style="text-align: center; padding: 80px 0; color: #8a8a84">
-        <p style="font-size: 18px">Type something to search</p>
-      </div>
-      {% endif %}
-    </div>
-  </body>
-</html>
+    <p class="empty-title">No results found</p>
+    <p class="empty-sub">
+      We couldn't find anything for "<strong>{{ query }}</strong>".<br />
+      Try different keywords or
+      <a href="{% url 'explore' %}">explore all stories</a>.
+    </p>
+  </div>
+  {% endif %} {% else %}
+  <!-- NO QUERY STATE -->
+  <div class="no-query">
+    <p>Type something in the search bar above to find stories.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

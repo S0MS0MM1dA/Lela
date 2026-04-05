@@ -1,9 +1,13 @@
+from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q
+from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import User, Post, Tag, Category, Comment, Like, Bookmark
 from django.http import JsonResponse
+from django.db import models
 
 # ── HOME ────────────────────────────────────────────────────
 def home(request):
@@ -27,6 +31,16 @@ def post_detail(request, slug):
     related  = Post.objects.filter(
         tags__in=post.tags.all(), status='published'
     ).exclude(id=post.id).distinct()[:3]
+
+    if related.count() < 3:
+        recent_fallback = Post.objects.filter(
+            status='published'
+        ).exclude(id=post.id).exclude(
+            id__in=related.values_list('id', flat=True)
+        ).order_by('-created_at')[:3 - related.count()]
+
+    from itertools import chain
+    related = list(chain(related, recent_fallback))
 
     # Count this view
     post.views += 1
@@ -68,6 +82,50 @@ def post_detail(request, slug):
         'user_bookmarked': user_bookmarked,
     })
 
+# ── EXPLORE ─────────────────────────────────────────────────
+def explore(request):
+    category_slug = request.GET.get('category')
+    tag_slug      = request.GET.get('tag')
+    sort          = request.GET.get('sort', 'latest')
+
+    posts = Post.objects.filter(status='published')
+
+    if category_slug:
+        posts = posts.filter(category__slug=category_slug)
+
+    if tag_slug:
+        posts = posts.filter(tags__slug=tag_slug)
+
+    if sort == 'trending':
+        posts = posts.order_by('-views')
+    elif sort == 'most_liked':
+        from django.db.models import Count
+        posts = posts.annotate(like_cnt=Count('likes')).order_by('-like_cnt')
+    else:
+        posts = posts.order_by('-created_at')
+
+    posts = posts.distinct()
+
+    categories = Category.objects.all()
+    tags       = Tag.objects.all()
+
+    return render(request, 'blog/explore.html', {
+        'posts':           posts,
+        'categories':      categories,
+        'tags':            tags,
+        'active_category': category_slug,
+        'active_tag':      tag_slug,
+        'sort':            sort,
+    })
+
+# ── TAGS PAGE ─────────────────────────────────────────────
+def tags_page(request):
+    from django.db.models import Count
+    tags = Tag.objects.annotate(
+        post_count=Count('posts', filter=models.Q(posts__status='published'))
+    ).order_by('-post_count')
+
+    return render(request, 'blog/tags.html', {'tags': tags})
 
 # ── SIGNUP ───────────────────────────────────────────────────
 def signup(request):
@@ -366,11 +424,9 @@ def toggle_bookmark(request, slug):
         'bookmarked': bookmarked,
     })
 
-from django.db.models import Q
-
 def search(request):
     query   = request.GET.get('q', '').strip()
-    results = []
+    results = Post.objects.none()
 
     if query:
         results = Post.objects.filter(

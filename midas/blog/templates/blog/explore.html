@@ -1,0 +1,225 @@
+{% extends 'base.html' %} {% load static %} {% block title %} Explore — Leela
+{%endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/base.css' %}" />
+<link rel="stylesheet" href="{% static 'blog/css/home.css' %}" />
+<style>
+  .explore-header {
+    max-width: 1280px;
+    margin: 48px auto 0;
+    padding: 0 32px;
+  }
+  .explore-title {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-1);
+    margin-bottom: 24px;
+    letter-spacing: -0.3px;
+  }
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .filter-label {
+    font-size: 13px;
+    color: var(--text-3);
+    font-weight: 500;
+    margin-right: 4px;
+  }
+  .filter-pill {
+    font-size: 13px;
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    color: var(--text-2);
+    background: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .filter-pill:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+  .filter-pill.active {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+  .sort-select {
+    margin-left: auto;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text-2);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    outline: none;
+    cursor: pointer;
+  }
+  .explore-main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 48px;
+    align-items: start;
+  }
+  .posts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .empty-msg {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 80px 0;
+    color: var(--text-3);
+    font-size: 16px;
+  }
+  @media (max-width: 1024px) {
+    .explore-main {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+
+<div class="explore-header">
+  <h1 class="explore-title">Explore Stories</h1>
+
+  <div class="filter-bar">
+    <span class="filter-label">Category:</span>
+    <a
+      href="{% url 'explore' %}"
+      class="filter-pill {% if not active_category %}active{% endif %}"
+    >
+      All
+    </a>
+    {% for cat in categories %}
+    <a
+      href="{% url 'explore' %}?category={{ cat.slug }}{% if sort %}&sort={{ sort }}{% endif %}"
+      class="filter-pill {% if active_category == cat.slug %}active{% endif %}"
+    >
+      {{ cat.name }}
+    </a>
+    {% endfor %}
+
+    <select class="sort-select" onchange="window.location = this.value">
+      <option
+        value="{% url 'explore' %}?{% if active_category %}category={{ active_category }}&{% endif %}sort=latest"
+        {%
+        if
+        sort=""
+        ="latest"
+        %}selected{%
+        endif
+        %}
+      >
+        Latest
+      </option>
+      <option
+        value="{% url 'explore' %}?{% if active_category %}category={{ active_category }}&{% endif %}sort=trending"
+        {%
+        if
+        sort=""
+        ="trending"
+        %}selected{%
+        endif
+        %}
+      >
+        Trending
+      </option>
+      <option
+        value="{% url 'explore' %}?{% if active_category %}category={{ active_category }}&{% endif %}sort=most_liked"
+        {%
+        if
+        sort=""
+        ="most_liked"
+        %}selected{%
+        endif
+        %}
+      >
+        Most liked
+      </option>
+    </select>
+  </div>
+</div>
+
+<div class="explore-main">
+  <div class="left-col">
+    <div class="posts-grid">
+      {% for post in posts %}
+      <article class="post-card">
+        <div class="post-card-img">
+          {% if post.cover_image %}
+          <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" />
+          {% else %}
+          <img
+            src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600"
+            alt=""
+          />
+          {% endif %}
+        </div>
+        <div class="post-card-body">
+          {% if post.category %}
+          <span class="tag-pill">{{ post.category.name }}</span>
+          {% endif %}
+          <h3 class="post-card-title">
+            <a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a>
+          </h3>
+          <div class="post-card-meta">
+            <div class="avatar"></div>
+            <span class="meta-author">{{ post.author.username }}</span>
+            <span class="dot">·</span>
+            <span class="meta-date">{{ post.created_at|date:"M d" }}</span>
+            <span class="dot">·</span>
+            <span class="meta-read">{{ post.read_time }} min read</span>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="empty-msg">No posts found.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <!-- Tags sidebar -->
+    <div class="sidebar-card">
+      <p class="tags-title">Filter by Tag</p>
+      <div class="tags-cloud">
+        <a
+          href="{% url 'explore' %}"
+          class="tag-badge {% if not active_tag %}active{% endif %}"
+          style="{% if not active_tag %}background:var(--teal);color:#fff;border-color:var(--teal);{% endif %}"
+        >
+          All
+        </a>
+        {% for tag in tags %}
+        <a
+          href="{% url 'explore' %}?tag={{ tag.slug }}"
+          class="tag-badge"
+          style="{% if active_tag == tag.slug %}background:var(--teal);color:#fff;border-color:var(--teal);{% endif %}"
+        >
+          {{ tag.name }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+</div>
+
+{% endblock %}

@@ -7,6 +7,8 @@ urlpatterns = [
     # Public pages
     path('', views.home, name='home'),
     path('post/<slug:slug>/', views.post_detail, name='post_detail'),
+    path('explore/', views.explore, name='explore'),
+    path('tags/', views.tags_page, name='tags_page'),
 
     # Auth
     path('signup/', views.signup, name='signup'),
