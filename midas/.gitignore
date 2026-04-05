@@ -1,0 +1,24 @@
+# Environment
+.env
+
+# Database
+db.sqlite3
+
+# Media uploads
+media/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+
+# Django
+*.log
+local_settings.py
+
+# macOS
+.DS_Store
