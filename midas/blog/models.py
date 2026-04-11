@@ -1,4 +1,5 @@
 from django.db import models
+import bleach
 
 # Create your models here.
 
@@ -105,9 +106,31 @@ class Post(models.Model):
                 counter += 1
             self.slug = slug
 
+        # ── Sanitize body HTML with bleach
+        # Only these tags and attributes are allowed
+        ALLOWED_TAGS = [
+            'p', 'br', 'strong', 'em', 'u', 's',
+            'h2', 'h3', 'h4',
+            'ul', 'ol', 'li',
+            'blockquote', 'pre', 'code',
+            'a', 'img',
+            'span', 'div',
+        ]
+        ALLOWED_ATTRIBUTES = {
+            'a':   ['href', 'title', 'target', 'rel'],
+            'img': ['src', 'alt', 'width', 'height'],
+            '*':   ['class', 'style'],
+        }
+        self.body = bleach.clean(
+            self.body,
+            tags=ALLOWED_TAGS,
+            attributes=ALLOWED_ATTRIBUTES,
+            strip=True,        # strip disallowed tags entirely
+        )
+
         # Auto-calculate read time (avg 200 words/min)
-        clean = re.sub(r'<[^>]+>', '', self.body)   # strip HTML tags
-        word_count = len(clean.split())
+        clean = re.sub(r'<[^>]+>', '', self.body)
+        word_count = len(bleach.clean(clean, tags=[], attributes=[]).split())
         self.read_time = max(1, word_count // 200)
 
         # Auto-generate excerpt if empty

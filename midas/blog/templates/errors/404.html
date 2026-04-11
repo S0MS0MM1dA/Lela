@@ -1,0 +1,19 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Page Not Found —
+Inkwell{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/base.css' %}" />
+<link rel="stylesheet" href="{% static 'blog/css/error.css' %}" />
+{% endblock %} {% block content %}
+<div class="error-page">
+  <div class="error-code">404</div>
+  <div class="error-illustration">📭</div>
+  <h1 class="error-title">Page not found</h1>
+  <p class="error-sub">
+    The page you're looking for doesn't exist or has been moved. Maybe the link
+    is broken, or the story was deleted.
+  </p>
+  <div class="error-actions">
+    <a class="btn-home" href="{% url 'home' %}">Go home</a>
+    <a class="btn-back" href="{% url 'explore' %}">Explore stories</a>
+  </div>
+</div>
+{% endblock %}

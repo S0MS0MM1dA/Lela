@@ -1,0 +1,219 @@
+{% extends 'base.html' %} {% load static %} {% block title %}{{ author.username
+}} — Leela{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'blog/css/base.css' %}" />
+<link rel="stylesheet" href="{% static 'blog/css/home.css' %}" />
+<link rel="stylesheet" href="{% static 'blog/css/author_profile.css' %}" />
+{% endblock %} {% block content %}
+
+<!-- ── PROFILE HERO ── -->
+<div class="profile-hero">
+  <div class="profile-hero-inner">
+    <!-- Avatar -->
+    <div class="profile-avatar">
+      {% if author.avatar %}
+      <img src="{{ author.avatar.url }}" alt="{{ author.username }}" />
+      {% else %} {{ author.username|first|upper }} {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div class="profile-info">
+      <h1 class="profile-name">
+        {{ author.get_full_name|default:author.username }}
+      </h1>
+      <p class="profile-handle">@{{ author.username }}</p>
+
+      {% if author.bio %}
+      <p class="profile-bio">{{ author.bio }}</p>
+      {% endif %} {% if author.website %}
+      <a
+        class="profile-website"
+        href="{{ author.website }}"
+        target="_blank"
+        rel="noopener"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+          />
+        </svg>
+        {{ author.website }}
+      </a>
+      {% endif %}
+
+      <!-- Stats -->
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <span class="profile-stat-num">{{ posts.count }}</span>
+          <span class="profile-stat-label">Posts</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-num" id="follower-count"
+            >{{ author.follower_count }}</span
+          >
+          <span class="profile-stat-label">Followers</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-num">{{ author.following_count }}</span>
+          <span class="profile-stat-label">Following</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-num">{{ total_views }}</span>
+          <span class="profile-stat-label">Total views</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-num">{{ total_likes }}</span>
+          <span class="profile-stat-label">Total likes</span>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      {% if request.user == author %}
+      <a class="btn-edit-profile" href="{% url 'dashboard_settings' %}">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          style="width: 15px; height: 15px"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+          />
+        </svg>
+        Edit profile
+      </a>
+      {% elif request.user.is_authenticated %}
+      <button
+        class="btn-follow-profile {% if is_following %}unfollow{% else %}follow{% endif %}"
+        id="follow-btn"
+        onclick="handleFollow()"
+      >
+        {% if is_following %}Following{% else %}Follow{% endif %}
+      </button>
+      {% else %}
+      <a class="btn-follow-profile follow" href="{% url 'signin' %}">Follow</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ── POSTS ── -->
+<div class="profile-posts">
+  <h2 class="profile-posts-title">
+    Stories by {{ author.get_full_name|default:author.username }}
+  </h2>
+
+  {% for post in posts %}
+  <a class="profile-post-card" href="{% url 'post_detail' post.slug %}">
+    <div class="profile-post-thumb">
+      {% if post.cover_image %}
+      <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" />
+      {% else %}
+      <img
+        src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=300&q=70"
+        alt=""
+      />
+      {% endif %}
+    </div>
+    <div class="profile-post-body">
+      {% if post.category %}
+      <span class="profile-post-cat">{{ post.category.name }}</span>
+      {% endif %}
+      <h3 class="profile-post-title">{{ post.title }}</h3>
+      <p class="profile-post-excerpt">{{ post.excerpt }}</p>
+      <div class="profile-post-meta">
+        <span>{{ post.created_at|date:"M d, Y" }}</span>
+        <span>·</span>
+        <span>{{ post.read_time }} min read</span>
+        <div class="profile-post-stats">
+          <span class="profile-post-stat">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
+            {{ post.views }}
+          </span>
+          <span class="profile-post-stat">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+            {{ post.like_count }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </a>
+  {% empty %}
+  <div class="profile-empty">No published posts yet.</div>
+  {% endfor %}
+</div>
+
+{% endblock %} {% block extra_js %}
+<script>
+  const CSRF     = '{{ csrf_token }}';
+  const IS_AUTH  = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+  const USERNAME = '{{ author.username }}';
+
+  async function handleFollow() {
+    if (!IS_AUTH) { window.location = '{% url "signin" %}'; return; }
+
+    const btn        = document.getElementById('follow-btn');
+    const isFollowing = btn.classList.contains('unfollow');
+    const action     = isFollowing ? 'unfollow' : 'follow';
+
+    const formData = new FormData();
+    formData.append('action', action);
+    formData.append('csrfmiddlewaretoken', CSRF);
+
+    const res  = await fetch(window.location.href, {
+      method:  'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body:    formData,
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      const nowFollowing = data.is_following;
+      btn.textContent = nowFollowing ? 'Following' : 'Follow';
+      btn.className   = `btn-follow-profile ${nowFollowing ? 'unfollow' : 'follow'}`;
+      document.getElementById('follower-count').textContent = data.followers;
+    }
+  }
+</script>
+{% endblock %}

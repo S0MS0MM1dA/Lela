@@ -34,6 +34,9 @@ urlpatterns = [
     # Search
     path('search/', views.search, name='search'),
 
+    # Author profiles
+    path('profile/<str:username>/', views.author_profile, name='author_profile'),
+
 
     # ── REST API
     path('api/posts/', api_views.post_list, name='api_post_list'),

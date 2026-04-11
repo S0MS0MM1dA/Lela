@@ -1,26 +1,36 @@
+from itertools import chain
 from django.db import models
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q
-from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import User, Post, Tag, Category, Comment, Like, Bookmark
 from django.http import JsonResponse
-from django.db import models
+from django.core.paginator import Paginator
+from .models import User, Post, Tag, Category, Comment, Like, Bookmark
 
 # ── HOME ────────────────────────────────────────────────────
 def home(request):
     featured = Post.objects.filter(status='published').first()
-    recent   = Post.objects.filter(status='published')[1:7]
+    all_posts = Post.objects.filter(status='published')[1:]
     trending = Post.objects.filter(status='published').order_by('-views')[:5]
     tags     = Tag.objects.all()[:12]
 
+    paginator = Paginator(all_posts, 6)
+    page_num  = request.GET.get('page', 1)
+    page_obj  = paginator.get_page(page_num)
+
+    # AJAX request — return only the post cards partial
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'partials/post_cards.html', {
+            'page_obj': page_obj,
+        })
+
     return render(request, 'blog/home.html', {
         'featured': featured,
-        'recent':   recent,
         'trending': trending,
         'tags':     tags,
+        'page_obj': page_obj,
     })
 
 
@@ -28,18 +38,22 @@ def home(request):
 def post_detail(request, slug):
     post     = get_object_or_404(Post, slug=slug, status='published')
     comments = post.comments.filter(parent=None)
-    related  = Post.objects.filter(
+    related = Post.objects.filter(
         tags__in=post.tags.all(), status='published'
     ).exclude(id=post.id).distinct()[:3]
 
-    if related.count() < 3:
-        recent_fallback = Post.objects.filter(
-            status='published'
-        ).exclude(id=post.id).exclude(
-            id__in=related.values_list('id', flat=True)
-        ).order_by('-created_at')[:3 - related.count()]
+    # Always define recent_fallback — no crash
+    related_ids   = [p.id for p in related]
+    need_more     = 3 - len(related_ids)
+    recent_fallback = []
+    if need_more > 0:
+        recent_fallback = list(
+            Post.objects.filter(status='published')
+            .exclude(id=post.id)
+            .exclude(id__in=related_ids)
+            .order_by('-created_at')[:need_more]
+        )
 
-    from itertools import chain
     related = list(chain(related, recent_fallback))
 
     # Count this view
@@ -106,11 +120,21 @@ def explore(request):
 
     posts = posts.distinct()
 
+    paginator = Paginator(posts, 8)
+    page_num  = request.GET.get('page', 1)
+    page_obj  = paginator.get_page(page_num)
+
     categories = Category.objects.all()
     tags       = Tag.objects.all()
 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'partials/post_cards.html', {
+            'page_obj': page_obj,
+        })
+
     return render(request, 'blog/explore.html', {
-        'posts':           posts,
+        'posts':           page_obj,
+        'page_obj':        page_obj,
         'categories':      categories,
         'tags':            tags,
         'active_category': category_slug,
@@ -440,3 +464,46 @@ def search(request):
         'query':   query,
         'results': results,
     })
+
+# ── AUTHOR PROFILE ─────────────────────────────────────────────
+def author_profile(request, username):
+    author = get_object_or_404(User, username=username)
+    posts  = Post.objects.filter(
+        author=author, status='published'
+    ).order_by('-created_at')
+
+    # Is the logged-in user following this author?
+    is_following = False
+    if request.user.is_authenticated and request.user != author:
+        is_following = author.followers.filter(id=request.user.id).exists()
+
+    # Handle follow/unfollow POST
+    if request.method == 'POST' and request.user.is_authenticated:
+        action = request.POST.get('action')
+        if action == 'follow':
+            author.followers.add(request.user)
+            is_following = True
+        elif action == 'unfollow':
+            author.followers.remove(request.user)
+            is_following = False
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success':      True,
+                'is_following': is_following,
+                'followers':    author.follower_count(),
+            })
+        return redirect('author_profile', username=username)
+
+    return render(request, 'blog/author_profile.html', {
+        'author':       author,
+        'posts':        posts,
+        'is_following': is_following,
+        'total_views':  sum(p.views for p in posts),
+        'total_likes':  sum(p.like_count() for p in posts),
+    })
+
+def error_404(request, exception):
+    return render(request, 'errors/404.html', status=404)
+
+def error_500(request):
+    return render(request, 'errors/500.html', status=500)

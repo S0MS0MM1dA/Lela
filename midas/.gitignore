@@ -17,6 +17,7 @@ venv/
 env/
 
 # Django
+staticfiles/
 *.log
 local_settings.py
 

@@ -1,0 +1,8 @@
+asgiref==3.11.1
+bleach==6.3.0
+Django==6.0.3
+djangorestframework==3.17.1
+pillow==12.1.1
+python-decouple==3.8
+sqlparse==0.5.5
+webencodings==0.5.1

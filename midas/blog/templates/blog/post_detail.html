@@ -109,7 +109,14 @@ Leela{% endblock %} {% block extra_css %}
         {% endif %}
       </div>
       <div>
-        <div class="author-name">{{ post.author.username }}</div>
+        <div class="author-name">
+          <a
+            href="{% url 'author_profile' post.author.username %}"
+            style="text-decoration: none; color: inherit"
+          >
+            {{ post.author.username }}
+          </a>
+        </div>
         <div class="author-meta">
           {{ post.created_at|date:"F d, Y" }}
           <span class="dot">·</span>
@@ -239,7 +246,14 @@ Leela{% endblock %} {% block extra_css %}
       {% endif %}
     </div>
     <div class="bio-content">
-      <div class="bio-name">{{ post.author.username }}</div>
+      <div class="bio-name">
+        <a
+          href="{% url 'author_profile' post.author.username %}"
+          style="text-decoration: none; color: inherit"
+        >
+          {{ post.author.username }}
+        </a>
+      </div>
       <p class="bio-text">{{ post.author.bio }}</p>
       <div class="bio-stats">
         <span>{{ post.author.follower_count }} followers</span>
@@ -304,7 +318,14 @@ Leela{% endblock %} {% block extra_css %}
           "
         ></div>
         <div>
-          <span class="comment-author">{{ comment.author.username }}</span>
+          <span class="comment-author">
+            <a
+              href="{% url 'author_profile' comment.author.username %}"
+              style="text-decoration: none; color: inherit"
+            >
+              {{ comment.author.username }}
+            </a>
+          </span>
           <span class="comment-date">{{ comment.created_at|date:"M d" }}</span>
           <p class="comment-text">{{ comment.body }}</p>
           {% for reply in comment.replies.all %}

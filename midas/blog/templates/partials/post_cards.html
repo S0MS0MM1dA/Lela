@@ -1,0 +1,40 @@
+{% load static %} {% for post in page_obj %}
+
+<article class="post-card">
+  <a
+    href="{% url 'post_detail' post.slug %}"
+    style="text-decoration: none; color: inherit"
+  >
+    <div class="post-card-img">
+      {% if post.cover_image %}
+      <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" />
+      {% else %}
+      <img
+        src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600"
+        alt=""
+      />
+      {% endif %}
+    </div>
+    <div class="post-card-body">
+      {% if post.category %}
+      <span class="tag-pill">{{ post.category.name }}</span>
+      {% endif %}
+      <h3 class="post-card-title">{{ post.title }}</h3>
+      <div class="post-card-meta">
+        <div class="avatar"></div>
+        <a
+          href="{% url 'author_profile' post.author.username %}"
+          style="text-decoration: none; color: inherit"
+        >
+          <span class="meta-author">{{ post.author.username }}</span>
+        </a>
+        <span class="dot">·</span>
+        <span class="meta-date">{{ post.created_at|date:"M d" }}</span>
+        <span class="dot">·</span>
+        <span class="meta-read">{{ post.read_time }} min read</span>
+      </div>
+    </div>
+  </a>
+</article>
+
+{% endfor %}

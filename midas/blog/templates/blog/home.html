@@ -29,7 +29,14 @@ Write Stories{% endblock %} {% block extra_css %}
         <div class="author-row">
           <div class="avatar av-marcus"></div>
           <div>
-            <div class="author-name">{{ featured.author.username }}</div>
+            <div class="author-name">
+              <a
+                href="{% url 'author_profile' featured.author.username %}"
+                style="text-decoration: none; color: inherit"
+              >
+                {{ featured.author.username }}
+              </a>
+            </div>
             <div class="author-meta">
               {{ featured.created_at|date:"F d, Y" }}
               <span class="dot">·</span>
@@ -51,20 +58,20 @@ Write Stories{% endblock %} {% block extra_css %}
   <!-- LEFT: RECENT STORIES -->
   <div class="left-col">
     <h2 class="section-title">Recent Stories</h2>
-    <div class="posts-grid">
-      {% for post in recent %}
-      <a
-        href="{% url 'post_detail' post.slug %}"
-        style="text-decoration: none; color: inherit; display: block"
-      >
-        <article class="post-card">
+    <div class="posts-grid" id="posts-grid">
+      {% for post in page_obj %}
+      <article class="post-card">
+        <a
+          href="{% url 'post_detail' post.slug %}"
+          style="text-decoration: none; color: inherit"
+        >
           <div class="post-card-img">
             {% if post.cover_image %}
             <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" />
             {% else %}
             <img
               src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600"
-              alt="cover"
+              alt=""
             />
             {% endif %}
           </div>
@@ -75,21 +82,61 @@ Write Stories{% endblock %} {% block extra_css %}
             <h3 class="post-card-title">{{ post.title }}</h3>
             <div class="post-card-meta">
               <div class="avatar"></div>
-              <span class="meta-author">{{ post.author.username }}</span>
+              <a
+                href="{% url 'author_profile' post.author.username %}"
+                style="text-decoration: none; color: inherit"
+              >
+                <span class="meta-author">{{ post.author.username }}</span>
+              </a>
               <span class="dot">·</span>
               <span class="meta-date">{{ post.created_at|date:"M d" }}</span>
               <span class="dot">·</span>
               <span class="meta-read">{{ post.read_time }} min read</span>
             </div>
           </div>
-        </article>
-      </a>
+        </a>
+      </article>
+
       {% empty %}
       <p style="color: #888; grid-column: 1/-1; padding: 40px 0">
         No posts yet. <a href="/admin">Add one in admin →</a>
       </p>
       {% endfor %}
     </div>
+
+    <!-- Load More button -->
+    {% if page_obj.has_next %}
+    <div style="text-align: center; margin-top: 40px" id="load-more-wrap">
+      <button
+        id="load-more-btn"
+        onclick="loadMore(this)"
+        data-next-page="{{ page_obj.next_page_number }}"
+        style="
+          background: none;
+          border: 1px solid var(--border);
+          border-radius: 24px;
+          padding: 12px 32px;
+          font-family: var(--sans);
+          font-size: 14px;
+          color: var(--text-2);
+          cursor: pointer;
+          transition:
+            border-color 0.15s,
+            color 0.15s;
+        "
+        onmouseover="
+          this.style.borderColor = 'var(--teal)';
+          this.style.color = 'var(--teal)';
+        "
+        onmouseout="
+          this.style.borderColor = 'var(--border)';
+          this.style.color = 'var(--text-2)';
+        "
+      >
+        Load more stories
+      </button>
+    </div>
+    {% endif %}
   </div>
 
   <!-- RIGHT: SIDEBAR -->
@@ -124,7 +171,12 @@ Write Stories{% endblock %} {% block extra_css %}
               <div class="trend-author-row">
                 <div class="avatar"></div>
                 <span class="trend-author-name"
-                  >{{ post.author.username }}</span
+                  ><a
+                    href="{% url 'author_profile' post.author.username %}"
+                    style="text-decoration: none; color: inherit"
+                  >
+                    {{ post.author.username }}
+                  </a></span
                 >
               </div>
               <p class="trend-title">{{ post.title }}</p>
@@ -153,4 +205,46 @@ Write Stories{% endblock %} {% block extra_css %}
   </aside>
 </div>
 
+{% endblock %} {% block extra_js %}
+<script>
+  async function loadMore(btn) {
+    const nextPage = btn.getAttribute("data-next-page");
+    btn.textContent = "Loading...";
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`/?page=${nextPage}`, {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const html = await res.text();
+
+      // Create a temp container to parse the HTML
+      const temp = document.createElement("div");
+      temp.innerHTML = html;
+
+      // Append new cards to the grid
+      const grid = document.getElementById("posts-grid");
+
+      temp.querySelectorAll("article.post-card").forEach((card) => {
+        grid.appendChild(card);
+      });
+
+      // Check if there are more pages
+      // The partial doesn't tell us — so we do a simple check:
+      // if fewer cards came back than page size, hide button
+      const newCards = temp.querySelectorAll("article.post-card").length;
+      if (newCards < 6) {
+        document.getElementById("load-more-wrap").remove();
+      } else {
+        btn.setAttribute("data-next-page", parseInt(nextPage) + 1);
+        btn.textContent = "Load more stories";
+        btn.disabled = false;
+      }
+    } catch (err) {
+      btn.textContent = "Load more stories";
+      btn.disabled = false;
+      console.error("Load more failed:", err);
+    }
+  }
+</script>
 {% endblock %}

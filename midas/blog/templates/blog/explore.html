@@ -194,6 +194,30 @@
       <div class="empty-msg">No posts found.</div>
       {% endfor %}
     </div>
+    {% if page_obj.has_next %}
+    <div
+      style="text-align: center; margin-top: 40px; grid-column: 1/-1"
+      id="load-more-wrap"
+    >
+      <button
+        id="load-more-btn"
+        onclick="loadMoreExplore(this)"
+        data-next-page="{{ page_obj.next_page_number }}"
+        style="
+          background: none;
+          border: 1px solid var(--border);
+          border-radius: 24px;
+          padding: 12px 32px;
+          font-family: var(--sans);
+          font-size: 14px;
+          color: var(--text-2);
+          cursor: pointer;
+        "
+      >
+        Load more stories
+      </button>
+    </div>
+    {% endif %}
   </div>
 
   <aside class="sidebar">
@@ -221,5 +245,39 @@
     </div>
   </aside>
 </div>
+
+<script>
+  async function loadMoreExplore(btn) {
+    const nextPage = btn.getAttribute("data-next-page");
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", nextPage);
+    btn.textContent = "Loading...";
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`/explore/?${params.toString()}`, {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const html = await res.text();
+      const temp = document.createElement("div");
+      temp.innerHTML = html;
+
+      const grid = document.getElementById("posts-grid");
+      const newCards = temp.querySelectorAll("a");
+      newCards.forEach((card) => grid.appendChild(card));
+
+      if (newCards.length < 8) {
+        document.getElementById("load-more-wrap").remove();
+      } else {
+        btn.setAttribute("data-next-page", parseInt(nextPage) + 1);
+        btn.textContent = "Load more stories";
+        btn.disabled = false;
+      }
+    } catch (err) {
+      btn.textContent = "Load more stories";
+      btn.disabled = false;
+    }
+  }
+</script>
 
 {% endblock %}

@@ -151,6 +151,21 @@
           <!-- Tags -->
           <div class="side-card">
             <p class="side-card-title">Tags</p>
+            <input
+              type="text"
+              id="tag-search"
+              placeholder="Search tags..."
+              oninput="filterTags(this.value)"
+              style="
+                width: 100%;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 7px 10px;
+                font-size: 13px;
+                margin-bottom: 10px;
+                outline: none;
+              "
+            />
             <div class="tags-grid">
               {% for tag in tags %}
               <input
@@ -305,12 +320,17 @@
           }, 800);
         }
       }, 60000);
+
+      // TAG FILTER
+      function filterTags(query) {
+        document.querySelectorAll(".tag-label").forEach((label) => {
+          const match = label.textContent
+            .toLowerCase()
+            .includes(query.toLowerCase());
+          label.style.display = match ? "" : "none";
+          label.previousElementSibling.style.display = match ? "" : "none"; // the checkbox
+        });
+      }
     </script>
   </body>
 </html>
-``` --- ## Step 4 — Add tags and categories via admin Before testing, go to
-`/admin` and add a few tags and categories so they show in the dropdowns: ```
-/admin/blog/tag/ ← add: technology, design, lifestyle, coding
-/admin/blog/category/ ← add: Technology, Lifestyle, Design, Culture ``` --- ##
-Test it ``` http://127.0.0.1:8000/write/ ← create new post
-http://127.0.0.1:8000/edit/<your-slug>/ ← edit existing post</your-slug>
